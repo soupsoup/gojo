@@ -12,6 +12,7 @@ The current product is a web prototype built around short, useful updates rather
 - Story-specific alerts covering developments, decisions, schedules, deadlines, countdowns, and verified status updates
 - Natural spoken attribution in every alert, such as “According to Reuters” or “The Mets announced”
 - Source provenance taken from the search tool, with URLs checked before an alert is published
+- Event-level deduplication across overlapping main topics, subtopics, headlines, and publishers
 - Hard limits that prevent commentary and filler from expanding each alert
 - Multi-voice ElevenLabs narration with a primary host and alternating correspondents
 - Source links for the reporting used in each briefing

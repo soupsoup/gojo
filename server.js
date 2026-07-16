@@ -219,6 +219,8 @@ ${JSON.stringify(profile)}
 
 Treat every selected subtopic as an intentional editorial search query. The topicGroups array contains the listener's three main topics in requested order. Search reporting and official schedules published or materially updated within the last twenty-four hours. Spread alerts across all three groups before adding more from one group. Aim for two to four useful alerts per group when reliable information exists.
 
+Deduplicate by underlying event, not by headline or source. If one story matches multiple main topics or subtopics, include it only once in the earliest relevant position. Multiple outlets reporting the same announcement, transaction, game, filing, release, or decision are still one alert. Use additional reporting to verify or enrich that single alert, never to create a second version of it.
+
 This is an alert feed, not a podcast and not an essay. Return one dated opening followed by 6 to 12 alerts. Each alert must describe one specific reported story in one or two short sentences and contain 12 to 45 words. Most should be 18 to 32 words. Include the central event plus one concrete supporting detail such as a number, person, date, opponent, product, decision, or immediate consequence. Every alert must be a complete factual statement with a subject and verb. A topic label or category-level trend such as “AI infrastructure spending is rising” is not a story and is forbidden.
 
 Name the reporting source inside every spoken alert. Use natural attribution such as “According to Reuters,” “Reuters reports,” “The Mets announced,” or “MLB’s schedule lists.” The named source must directly support that exact alert. Do not cite aggregators when original reporting, an official announcement, filing, schedule, or primary document is available. Put the matching direct story or document URL in the sources array; do not return section pages, homepages, search pages, or invented URLs.
@@ -343,9 +345,31 @@ ${result.raw}`);
     const normalizedAlert = alert.toLowerCase().replace(/[^a-z0-9]/g, "");
     return publisherAliases.some((alias) => alias.length >= 4 && normalizedAlert.includes(alias));
   });
-  if (sourcedAlerts.length < 3) throw new Error("Briefing returned too few alerts with verified source attribution");
-  briefing.sections = [briefing.sections[0], ...sourcedAlerts];
-  briefing.alert_count = sourcedAlerts.length;
+  const duplicateStopWords = new Set([
+    "according", "reports", "reported", "reporting", "says", "said", "announced", "confirmed",
+    "today", "yesterday", "tomorrow", "their", "there", "about", "after", "before", "from", "with",
+    "that", "this", "will", "would", "could", "into", "over", "under", "more", "than", "news",
+    "sports", "technology", "business", "culture", "politics", "science", "world"
+  ]);
+  const eventTokens = (alert) => new Set(alert.toLowerCase().match(/[a-z0-9]+/g)
+    ?.filter((token) => token.length > 3 && !duplicateStopWords.has(token)) || []);
+  const uniqueAlerts = [];
+  const uniqueTokenSets = [];
+  for (const alert of sourcedAlerts) {
+    const tokens = eventTokens(alert);
+    const isDuplicate = uniqueTokenSets.some((existing) => {
+      const shared = [...tokens].filter((token) => existing.has(token)).length;
+      const smallerSet = Math.min(tokens.size, existing.size);
+      return smallerSet > 0 && shared / smallerSet >= 0.62;
+    });
+    if (!isDuplicate) {
+      uniqueAlerts.push(alert);
+      uniqueTokenSets.push(tokens);
+    }
+  }
+  if (uniqueAlerts.length < 3) throw new Error("Briefing returned too few distinct alerts with verified source attribution");
+  briefing.sections = [briefing.sections[0], ...uniqueAlerts];
+  briefing.alert_count = uniqueAlerts.length;
   return briefing;
 }
 
