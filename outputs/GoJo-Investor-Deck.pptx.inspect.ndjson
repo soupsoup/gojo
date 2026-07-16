@@ -1,0 +1,134 @@
+{"kind":"deck","id":"pr/xrukgs","name":"Deck"}
+{"kind":"layout","layoutId":"c5126670-f39c-4598-bb83-f2fd7d2323db","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"311fb495-4089-462c-afc0-4747bf540d8d","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/k9zxq7","slide":1,"title":"GOJO","textShapes":7}
+{"kind":"textbox","id":"sh/kr214369","slide":1,"name":"brand-1","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,110,30]}
+{"kind":"shape","id":"sh/jqt0byp4","slide":1,"name":"brand-accent-1","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/ipkz2toj","slide":1,"name":"section-1","text":"INVESTOR OVERVIEW","textPreview":"INVESTOR OVERVIEW","textChars":17,"textLines":1,"bbox":[930,30,250,24]}
+{"kind":"textbox","id":"sh/xobi9o7y","slide":1,"name":"page-1","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1180,672,50,18]}
+{"kind":"shape","id":"sh/wn2h0j6d","slide":1,"name":"cover-signal","bbox":[918,0,362,720]}
+{"kind":"shape","id":"sh/v2907eps","slide":1,"name":"cover-orange","bbox":[918,530,362,190]}
+{"kind":"textbox","id":"sh/a10zy9o7","slide":1,"name":"cover-title","text":"The news habit\nbuilt for one person.","textPreview":"The news habit | built for one person.","textChars":36,"textLines":2,"bbox":[56,170,780,250]}
+{"kind":"textbox","id":"sh/hkvil8n2","slide":1,"name":"cover-sub","text":"GoJo turns a listener’s exact priorities into a sourced five-minute audio briefing—delivered every morning by email.","textPreview":"GoJo turns a listener’s exact priorities into a sourced five-minute audio briefing—delivered every morning by email.","textChars":116,"textLines":1,"bbox":[58,460,720,95]}
+{"kind":"textbox","id":"sh/gjm1cn6h","slide":1,"name":"cover-tag","text":"PERSONAL AUDIO  /  CURATED DAILY  /  CONTEXT INCLUDED","textPreview":"PERSONAL AUDIO  /  CURATED DAILY  /  CONTEXT INCLUDED","textChars":53,"textLines":1,"bbox":[58,610,760,30]}
+{"kind":"textbox","id":"sh/2hsza1gr","slide":1,"name":"cover-mark","text":"GO\nJO","textPreview":"GO | JO","textChars":5,"textLines":2,"bbox":[972,130,250,220]}
+{"kind":"notes","id":"nt/k9zxq7","slide":1,"text":""}
+{"kind":"slide","id":"sl/iytcv1","slide":2,"title":"GOJO","textShapes":13}
+{"kind":"textbox","id":"sh/kra9wz6p","slide":2,"name":"brand-2","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,110,30]}
+{"kind":"shape","id":"sh/jq183up4","slide":2,"name":"brand-accent-2","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/ypsru9oj","slide":2,"name":"section-2","text":"THE PROBLEM","textPreview":"THE PROBLEM","textChars":11,"textLines":1,"bbox":[930,30,250,24]}
+{"kind":"textbox","id":"sh/tg3a9o76","slide":2,"name":"page-2","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1180,672,50,18]}
+{"kind":"textbox","id":"sh/8fu90j6l","slide":2,"name":"problem-title","text":"News is abundant.\nUnderstanding is scarce.","textPreview":"News is abundant. | Understanding is scarce.","textChars":42,"textLines":2,"bbox":[48,90,850,145]}
+{"kind":"shape","id":"sh/7els7ep0","slide":2,"name":"p-card-0","bbox":[48,300,366,300]}
+{"kind":"textbox","id":"sh/6tcry9ov","slide":2,"name":"p-num-0","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[72,320,70,28]}
+{"kind":"textbox","id":"sh/hknadoni","slide":2,"name":"p-head-0","text":"Feeds optimize for more scrolling","textPreview":"Feeds optimize for more scrolling","textChars":33,"textLines":1,"bbox":[72,370,310,70]}
+{"kind":"textbox","id":"sh/gju94j6x","slide":2,"name":"p-body-0","text":"The user does the work: filtering, opening, comparing and deciding what matters.","textPreview":"The user does the work: filtering, opening, comparing and deciding what matters.","textChars":80,"textLines":1,"bbox":[72,465,310,90]}
+{"kind":"shape","id":"sh/ado3m9kf","slide":2,"name":"p-card-1","bbox":[452,300,366,300]}
+{"kind":"textbox","id":"sh/vexkvel0","slide":2,"name":"p-num-1","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[476,320,70,28]}
+{"kind":"textbox","id":"sh/wf6loj2l","slide":2,"name":"p-head-1","text":"Headlines arrive without context","textPreview":"Headlines arrive without context","textChars":32,"textLines":1,"bbox":[476,370,310,70]}
+{"kind":"textbox","id":"sh/xgf2xo3q","slide":2,"name":"p-body-1","text":"A five-second glance rarely explains what happened, why it matters or what comes next.","textPreview":"A five-second glance rarely explains what happened, why it matters or what comes next.","textChars":86,"textLines":1,"bbox":[476,465,310,90]}
+{"kind":"shape","id":"sh/iho3q9kb","slide":2,"name":"p-card-2","bbox":[856,300,366,300]}
+{"kind":"textbox","id":"sh/jix4zelw","slide":2,"name":"p-num-2","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[880,320,70,28]}
+{"kind":"textbox","id":"sh/kj6lsj2h","slide":2,"name":"p-head-2","text":"Generic briefings miss the niche","textPreview":"Generic briefings miss the niche","textChars":32,"textLines":1,"bbox":[880,370,310,70]}
+{"kind":"textbox","id":"sh/54zm1o32","slide":2,"name":"p-body-2","text":"Broad categories cannot capture a specific company, team, person, place or unfolding theme.","textPreview":"Broad categories cannot capture a specific company, team, person, place or unfolding theme.","textChars":91,"textLines":1,"bbox":[880,465,310,90]}
+{"kind":"notes","id":"nt/iytcv1","slide":2,"text":""}
+{"kind":"slide","id":"sl/himg07","slide":3,"title":"GOJO","textShapes":18}
+{"kind":"textbox","id":"sh/cvihwni1","slide":3,"name":"brand-3","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,110,30]}
+{"kind":"shape","id":"sh/rupg321g","slide":3,"name":"brand-accent-3","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/qtgfux0v","slide":3,"name":"section-3","text":"THE PRODUCT","textPreview":"THE PRODUCT","textChars":11,"textLines":1,"bbox":[930,30,250,24]}
+{"kind":"textbox","id":"sh/10ry9czi","slide":3,"name":"page-3","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1180,672,50,18]}
+{"kind":"textbox","id":"sh/0zih07ix","slide":3,"name":"product-title","text":"A complete morning briefing,\nwithout the morning scroll.","textPreview":"A complete morning briefing, | without the morning scroll.","textChars":56,"textLines":2,"bbox":[48,82,850,130]}
+{"kind":"shape","id":"sh/zy9g72hc","slide":3,"name":"stage-0","bbox":[48,300,270,250]}
+{"kind":"textbox","id":"sh/ex0zyx07","slide":3,"name":"stage-no-0","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[70,320,40,22]}
+{"kind":"textbox","id":"sh/9obydczu","slide":3,"name":"stage-title-0","text":"TUNE","textPreview":"TUNE","textChars":4,"textLines":1,"bbox":[70,365,220,35]}
+{"kind":"textbox","id":"sh/o32h4ri9","slide":3,"name":"stage-body-0","text":"Choose exact interests—or explore topics and subtopics.","textPreview":"Choose exact interests—or explore topics and subtopics.","textChars":55,"textLines":1,"bbox":[70,420,222,90]}
+{"kind":"shape","id":"sh/2lsvq14f","slide":3,"name":"stage-1","bbox":[346,300,270,250]}
+{"kind":"textbox","id":"sh/3m1wj650","slide":3,"name":"stage-no-1","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[368,320,40,22]}
+{"kind":"textbox","id":"sh/4nadsbml","slide":3,"name":"stage-title-1","text":"CURATE","textPreview":"CURATE","textChars":6,"textLines":1,"bbox":[368,365,220,35]}
+{"kind":"textbox","id":"sh/pojelwn6","slide":3,"name":"stage-body-1","text":"Research current reporting and select the most consequential stories.","textPreview":"Research current reporting and select the most consequential stories.","textChars":69,"textLines":1,"bbox":[368,420,222,90]}
+{"kind":"shape","id":"sh/qpsfu14r","slide":3,"name":"stage-2","bbox":[644,300,270,250]}
+{"kind":"textbox","id":"sh/rq1wn65c","slide":3,"name":"stage-no-2","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[666,320,40,22]}
+{"kind":"textbox","id":"sh/cruxwbmh","slide":3,"name":"stage-title-2","text":"EXPLAIN","textPreview":"EXPLAIN","textChars":7,"textLines":1,"bbox":[666,365,220,35]}
+{"kind":"textbox","id":"sh/ds3epgn2","slide":3,"name":"stage-body-2","text":"Add background, why it matters and what to watch next.","textPreview":"Add background, why it matters and what to watch next.","textChars":54,"textLines":1,"bbox":[666,420,222,90]}
+{"kind":"shape","id":"sh/6t8viho7","slide":3,"name":"stage-3","bbox":[942,300,270,250]}
+{"kind":"textbox","id":"sh/7uhwbm5s","slide":3,"name":"stage-no-3","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[964,320,40,22]}
+{"kind":"textbox","id":"sh/bydsjilk","slide":3,"name":"stage-title-3","text":"DELIVER","textPreview":"DELIVER","textChars":7,"textLines":1,"bbox":[964,365,220,35]}
+{"kind":"textbox","id":"sh/ax4bqdkz","slide":3,"name":"stage-body-3","text":"Natural voice plus a visual email summary, ready for the commute.","textPreview":"Natural voice plus a visual email summary, ready for the commute.","textChars":65,"textLines":1,"bbox":[964,420,222,90]}
+{"kind":"textbox","id":"sh/x0vals3q","slide":3,"name":"product-proof","text":"WORKING POC","textPreview":"WORKING POC","textChars":11,"textLines":1,"bbox":[48,620,150,24]}
+{"kind":"textbox","id":"sh/wzmtsn25","slide":3,"name":"product-proof-copy","text":"Voice onboarding · live web research · sourced summaries · ElevenLabs narration · email delivery","textPreview":"Voice onboarding · live web research · sourced summaries · ElevenLabs narration · email delivery","textChars":96,"textLines":1,"bbox":[205,620,870,24]}
+{"kind":"notes","id":"nt/himg07","slide":3,"text":""}
+{"kind":"slide","id":"sl/ta5wr9","slide":4,"title":"GOJO","textShapes":11}
+{"kind":"textbox","id":"sh/4japsri5","slide":4,"name":"brand-4","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,110,30]}
+{"kind":"shape","id":"sh/3y1ojmhk","slide":4,"name":"brand-accent-4","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/ixs7qh0z","slide":4,"name":"section-4","text":"WHY IT WINS","textPreview":"WHY IT WINS","textChars":11,"textLines":1,"bbox":[930,30,250,24]}
+{"kind":"textbox","id":"sh/do3qpwzm","slide":4,"name":"page-4","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1180,672,50,18]}
+{"kind":"textbox","id":"sh/snupwryh","slide":4,"name":"pers-title","text":"Personalization starts where\ncategory menus stop.","textPreview":"Personalization starts where | category menus stop.","textChars":49,"textLines":2,"bbox":[48,82,820,130]}
+{"kind":"shape","id":"sh/rml8nmhw","slide":4,"name":"pers-left","bbox":[48,270,548,330]}
+{"kind":"shape","id":"sh/qlc7uhgb","slide":4,"name":"pers-right","bbox":[636,270,596,330]}
+{"kind":"textbox","id":"sh/tsj6dczi","slide":4,"name":"pers-left-k","text":"FREEFORM PRIORITIES","textPreview":"FREEFORM PRIORITIES","textChars":19,"textLines":1,"bbox":[76,295,280,25]}
+{"kind":"textbox","id":"sh/8rqpk7ix","slide":4,"name":"pers-left-h","text":"Rank what matters","textPreview":"Rank what matters","textChars":17,"textLines":1,"bbox":[76,340,420,42]}
+{"kind":"textbox","id":"sh/edoj61wf","slide":4,"name":"pers-left-b","text":"“AI copyright lawsuits”\n“New York Mets prospects”\n“Independent film distribution”","textPreview":"“AI copyright lawsuits” | “New York Mets prospects” | “Independent film distribution”","textChars":81,"textLines":3,"bbox":[76,405,450,118]}
+{"kind":"textbox","id":"sh/fexkz6x0","slide":4,"name":"pers-right-k","text":"GUIDED DISCOVERY","textPreview":"GUIDED DISCOVERY","textChars":16,"textLines":1,"bbox":[666,295,280,25]}
+{"kind":"textbox","id":"sh/0f618bel","slide":4,"name":"pers-right-h","text":"Go broad, then go deep","textPreview":"Go broad, then go deep","textChars":22,"textLines":1,"bbox":[666,340,500,42]}
+{"kind":"textbox","id":"sh/1gz21gf6","slide":4,"name":"pers-right-b","text":"Main topic bubbles reveal relevant subtopics. Priority order carries directly into story selection and airtime.","textPreview":"Main topic bubbles reveal relevant subtopics. Priority order carries directly into story selection and airtime.","textChars":111,"textLines":1,"bbox":[666,405,500,110]}
+{"kind":"textbox","id":"sh/2h8ja1wr","slide":4,"name":"pers-bottom","text":"The result is not a demographic segment. It is an editorial brief for one person.","textPreview":"The result is not a demographic segment. It is an editorial brief for one person.","textChars":81,"textLines":1,"bbox":[48,635,1135,30]}
+{"kind":"notes","id":"nt/ta5wr9","slide":4,"text":""}
+{"kind":"slide","id":"sl/4a1mdw","slide":5,"title":"GOJO","textShapes":14}
+{"kind":"textbox","id":"sh/ipk3ihkf","slide":5,"name":"brand-5","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,110,30]}
+{"kind":"shape","id":"sh/5cvmdwjq","slide":5,"name":"brand-accent-5","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/4bm5kr25","slide":5,"name":"section-5","text":"THE WEDGE","textPreview":"THE WEDGE","textChars":9,"textLines":1,"bbox":[930,30,250,24]}
+{"kind":"textbox","id":"sh/vmt472lo","slide":5,"name":"page-5","text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1180,672,50,18]}
+{"kind":"textbox","id":"sh/ulk3exk3","slide":5,"name":"dist-title","text":"Own the morning moment—\nthen deepen the relationship.","textPreview":"Own the morning moment— | then deepen the relationship.","textChars":53,"textLines":2,"bbox":[48,82,850,130]}
+{"kind":"shape","id":"sh/hobm9cju","slide":5,"name":"dist-line","bbox":[110,360,910,4]}
+{"kind":"shape","id":"sh/wn2lg729","slide":5,"name":"dist-dot-0","bbox":[70,336,48,48]}
+{"kind":"textbox","id":"sh/fix4j61s","slide":5,"name":"dist-phase-0","text":"NOW","textPreview":"NOW","textChars":3,"textLines":1,"bbox":[65,290,150,24]}
+{"kind":"textbox","id":"sh/ehonq1k7","slide":5,"name":"dist-head-0","text":"Email + audio","textPreview":"Email + audio","textChars":13,"textLines":1,"bbox":[65,420,300,38]}
+{"kind":"textbox","id":"sh/gnqdsn6h","slide":5,"name":"dist-body-0","text":"A visual digest creates the open. One tap launches the full spoken briefing.","textPreview":"A visual digest creates the open. One tap launches the full spoken briefing.","textChars":76,"textLines":1,"bbox":[65,475,300,90]}
+{"kind":"shape","id":"sh/hozelsn2","slide":5,"name":"dist-dot-1","bbox":[465,336,48,48]}
+{"kind":"textbox","id":"sh/ulovqdob","slide":5,"name":"dist-phase-1","text":"NEXT","textPreview":"NEXT","textChars":4,"textLines":1,"bbox":[460,290,150,24]}
+{"kind":"textbox","id":"sh/fmhwji5w","slide":5,"name":"dist-head-1","text":"Behavioral learning","textPreview":"Behavioral learning","textChars":19,"textLines":1,"bbox":[460,420,300,38]}
+{"kind":"textbox","id":"sh/sj6do36l","slide":5,"name":"dist-body-1","text":"Follows, skips and “more like this” signals sharpen the editorial profile.","textPreview":"Follows, skips and “more like this” signals sharpen the editorial profile.","textChars":74,"textLines":1,"bbox":[460,475,300,90]}
+{"kind":"shape","id":"sh/tkfeh8n6","slide":5,"name":"dist-dot-2","bbox":[860,336,48,48]}
+{"kind":"textbox","id":"sh/6xovmdof","slide":5,"name":"dist-phase-2","text":"LATER","textPreview":"LATER","textChars":5,"textLines":1,"bbox":[855,290,150,24]}
+{"kind":"textbox","id":"sh/7ixwfyp0","slide":5,"name":"dist-head-2","text":"Interactive voice","textPreview":"Interactive voice","textChars":17,"textLines":1,"bbox":[855,420,300,38]}
+{"kind":"textbox","id":"sh/kv6dk369","slide":5,"name":"dist-body-2","text":"Listeners talk back, ask follow-ups and move from broadcast to conversation.","textPreview":"Listeners talk back, ask follow-ups and move from broadcast to conversation.","textChars":76,"textLines":1,"bbox":[855,475,300,90]}
+{"kind":"textbox","id":"sh/5wfed87u","slide":5,"name":"dist-note","text":"Email is the acquisition surface. Audio is the habit. Conversation is the retention moat.","textPreview":"Email is the acquisition surface. Audio is the habit. Conversation is the retention moat.","textChars":89,"textLines":1,"bbox":[48,635,1120,30]}
+{"kind":"notes","id":"nt/4a1mdw","slide":5,"text":""}
+{"kind":"slide","id":"sl/wy733o","slide":6,"title":"GOJO","textShapes":15}
+{"kind":"textbox","id":"sh/q58vmps3","slide":6,"name":"brand-6","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,110,30]}
+{"kind":"shape","id":"sh/d8zuh4be","slide":6,"name":"brand-accent-6","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/c7qdozat","slide":6,"name":"section-6","text":"BUSINESS MODEL","textPreview":"BUSINESS MODEL","textChars":14,"textLines":1,"bbox":[930,30,250,24]}
+{"kind":"textbox","id":"sh/za1cjetk","slide":6,"name":"page-6","text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1180,672,50,18]}
+{"kind":"textbox","id":"sh/y98vq9sz","slide":6,"name":"model-title","text":"A subscription product with\ncompounding editorial intelligence.","textPreview":"A subscription product with | compounding editorial intelligence.","textChars":63,"textLines":2,"bbox":[48,72,900,130]}
+{"kind":"shape","id":"sh/lwjul4bq","slide":6,"name":"m-card-0","bbox":[48,265,356,300]}
+{"kind":"textbox","id":"sh/0vadsza5","slide":6,"name":"m-tier-0","text":"FREE","textPreview":"FREE","textChars":4,"textLines":1,"bbox":[72,290,180,26]}
+{"kind":"textbox","id":"sh/fexc7atg","slide":6,"name":"m-head-0","text":"Habit formation","textPreview":"Habit formation","textChars":15,"textLines":1,"bbox":[72,345,290,40]}
+{"kind":"textbox","id":"sh/edobe5sv","slide":6,"name":"m-body-0","text":"Limited weekly briefings\nand core topic tuning","textPreview":"Limited weekly briefings | and core topic tuning","textChars":46,"textLines":2,"bbox":[72,420,290,80]}
+{"kind":"shape","id":"sh/0fihw7ih","slide":6,"name":"m-card-1","bbox":[442,265,356,300]}
+{"kind":"textbox","id":"sh/1gbipczm","slide":6,"name":"m-tier-1","text":"PRO","textPreview":"PRO","textChars":3,"textLines":1,"bbox":[466,290,180,26]}
+{"kind":"textbox","id":"sh/ed0zux0b","slide":6,"name":"m-head-1","text":"Primary revenue","textPreview":"Primary revenue","textChars":15,"textLines":1,"bbox":[466,345,290,40]}
+{"kind":"textbox","id":"sh/fe9gn2hw","slide":6,"name":"m-body-1","text":"Daily delivery, deeper tuning,\narchive and follow-up access","textPreview":"Daily delivery, deeper tuning, | archive and follow-up access","textChars":59,"textLines":2,"bbox":[466,420,290,80]}
+{"kind":"shape","id":"sh/oj2h0rid","slide":6,"name":"m-card-2","bbox":[836,265,356,300]}
+{"kind":"textbox","id":"sh/p4bitwzy","slide":6,"name":"m-tier-2","text":"B2B","textPreview":"B2B","textChars":3,"textLines":1,"bbox":[860,290,180,26]}
+{"kind":"textbox","id":"sh/2hkzyh07","slide":6,"name":"m-head-2","text":"Expansion","textPreview":"Expansion","textChars":9,"textLines":1,"bbox":[860,345,290,40]}
+{"kind":"textbox","id":"sh/nit0rmhs","slide":6,"name":"m-body-2","text":"Executive briefings, team feeds\nand licensed briefing infrastructure","textPreview":"Executive briefings, team feeds | and licensed briefing infrastructure","textChars":68,"textLines":2,"bbox":[860,420,290,80]}
+{"kind":"textbox","id":"sh/4nyhoni9","slide":6,"name":"moat-label","text":"DEFENSIBILITY","textPreview":"DEFENSIBILITY","textChars":13,"textLines":1,"bbox":[48,615,150,22]}
+{"kind":"textbox","id":"sh/5o7yhszu","slide":6,"name":"moat","text":"Preference history + feedback signals + trusted delivery = a briefing that gets harder to replace every day.","textPreview":"Preference history + feedback signals + trusted delivery = a briefing that gets harder to replace every day.","textChars":108,"textLines":1,"bbox":[205,607,990,40]}
+{"kind":"notes","id":"nt/wy733o","slide":6,"text":""}
+{"kind":"slide","id":"sl/02znhh","slide":7,"title":"GOJO","textShapes":13}
+{"kind":"textbox","id":"sh/gval4z2d","slide":7,"name":"ask-brand","text":"GOJO","textPreview":"GOJO","textChars":4,"textLines":1,"bbox":[48,28,120,30]}
+{"kind":"shape","id":"sh/vu14vu1s","slide":7,"name":"ask-accent","bbox":[112,30,42,5]}
+{"kind":"textbox","id":"sh/uts32pk7","slide":7,"name":"ask-label","text":"PRE-SEED","textPreview":"PRE-SEED","textChars":8,"textLines":1,"bbox":[1040,30,170,24]}
+{"kind":"textbox","id":"sh/5k3m1oju","slide":7,"name":"ask-title","text":"Fund the proof\nof daily habit.","textPreview":"Fund the proof | of daily habit.","textChars":30,"textLines":2,"bbox":[48,112,700,150]}
+{"kind":"textbox","id":"sh/4ja58j29","slide":7,"name":"ask-body","text":"The product works. The next milestone is proving that precise personalization, trusted context and effortless delivery create repeat listening.","textPreview":"The product works. The next milestone is proving that precise personalization, trusted context and effortless delivery create repeat list...","textChars":143,"textLines":1,"bbox":[48,310,760,92]}
+{"kind":"textbox","id":"sh/3i14ze1o","slide":7,"name":"ask-no-0","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[48,455,50,28]}
+{"kind":"textbox","id":"sh/ihs369kj","slide":7,"name":"ask-item-0","text":"Launch a focused beta","textPreview":"Launch a focused beta","textChars":21,"textLines":1,"bbox":[110,455,630,30]}
+{"kind":"textbox","id":"sh/lozm5kjq","slide":7,"name":"ask-no-1","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[48,511,50,28]}
+{"kind":"textbox","id":"sh/knqlwf25","slide":7,"name":"ask-item-1","text":"Measure retention and topic fit","textPreview":"Measure retention and topic fit","textChars":31,"textLines":1,"bbox":[110,511,630,30]}
+{"kind":"textbox","id":"sh/2lwrapsv","slide":7,"name":"ask-no-2","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[48,567,50,28]}
+{"kind":"textbox","id":"sh/3m583utg","slide":7,"name":"ask-item-2","text":"Build mobile triggers + interactive voice","textPreview":"Build mobile triggers + interactive voice","textChars":41,"textLines":1,"bbox":[110,567,630,30]}
+{"kind":"shape","id":"sh/one9cfa1","slide":7,"name":"ask-right","bbox":[890,125,320,450]}
+{"kind":"textbox","id":"sh/po7q5kbm","slide":7,"name":"ask-right-big","text":"5 min","textPreview":"5 min","textChars":5,"textLines":1,"bbox":[930,180,240,85]}
+{"kind":"textbox","id":"sh/qpgreps7","slide":7,"name":"ask-right-small","text":"to understand\nwhat matters","textPreview":"to understand | what matters","textChars":26,"textLines":2,"bbox":[930,285,240,90]}
+{"kind":"textbox","id":"sh/bqp87uts","slide":7,"name":"ask-contact","text":"GoJo · Anthony DeRosa\nnewsdj.vercel.app","textPreview":"GoJo · Anthony DeRosa | newsdj.vercel.app","textChars":39,"textLines":2,"bbox":[930,470,240,62]}
+{"kind":"notes","id":"nt/02znhh","slide":7,"text":""}

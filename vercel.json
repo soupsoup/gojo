@@ -1,0 +1,19 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "api/[...path].js", "use": "@vercel/node", "config": { "maxDuration": 60 } },
+    { "src": "index.html", "use": "@vercel/static" },
+    { "src": "email-preview.html", "use": "@vercel/static" },
+    { "src": "email-poc-briefing.json", "use": "@vercel/static" },
+    { "src": "app.js", "use": "@vercel/static" },
+    { "src": "styles.css", "use": "@vercel/static" }
+  ],
+  "routes": [
+    { "src": "/api/.*", "dest": "/api/[...path].js" },
+    { "src": "/app.js", "dest": "/app.js" },
+    { "src": "/styles.css", "dest": "/styles.css" },
+    { "src": "/email-preview", "dest": "/email-preview.html" },
+    { "src": "/email-poc-briefing.json", "dest": "/email-poc-briefing.json" },
+    { "src": "/", "dest": "/index.html" }
+  ]
+}
