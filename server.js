@@ -197,7 +197,7 @@ async function generateModelBriefing(profile) {
     properties: {
       title: { type: "string" },
       alert_count: { type: "integer" },
-      sections: { type: "array", minItems: 7, maxItems: 13, items: { type: "string", minLength: 20, maxLength: 300 } },
+      sections: { type: "array", minItems: 7, maxItems: 13, items: { type: "string", minLength: 20, maxLength: 350 } },
       sources: {
         type: "array", minItems: 2, maxItems: 20,
         items: {
@@ -219,15 +219,36 @@ ${JSON.stringify(profile)}
 
 Treat every selected subtopic as an intentional editorial search query. The topicGroups array contains the listener's three main topics in requested order. Search reporting and official schedules published or materially updated within the last twenty-four hours. Spread alerts across all three groups before adding more from one group. Aim for two to four useful alerts per group when reliable information exists.
 
-This is an alert feed, not a podcast and not an essay. Return one dated opening followed by 6 to 12 alerts. Each alert must communicate exactly one useful fact in one or two short sentences and contain 6 to 40 words. Most should be 8 to 25 words. Every alert must be a complete factual statement with a subject and verb. A topic label such as “Sports — Baseball” is not an alert and is forbidden. Never put headings, section labels, “Sources,” or empty strings in the sections array. Prefer concrete developments, decisions, scores, schedules, deadlines, countdowns, filings, releases, and verified status updates. A useful alert may simply say that nothing changed, for example: “The Mets made no roster moves today,” but only when that absence is verified from a current authoritative source. Another valid alert is: “The Mets play the Dodgers today at 3 p.m. Eastern.”
+This is an alert feed, not a podcast and not an essay. Return one dated opening followed by 6 to 12 alerts. Each alert must describe one specific reported story in one or two short sentences and contain 12 to 45 words. Most should be 18 to 32 words. Include the central event plus one concrete supporting detail such as a number, person, date, opponent, product, decision, or immediate consequence. Every alert must be a complete factual statement with a subject and verb. A topic label or category-level trend such as “AI infrastructure spending is rising” is not a story and is forbidden.
+
+Name the reporting source inside every spoken alert. Use natural attribution such as “According to Reuters,” “Reuters reports,” “The Mets announced,” or “MLB’s schedule lists.” The named source must directly support that exact alert. Do not cite aggregators when original reporting, an official announcement, filing, schedule, or primary document is available. Put the matching direct story or document URL in the sources array; do not return section pages, homepages, search pages, or invented URLs.
+
+Never put headings, standalone section labels, “Sources,” or empty strings in the sections array. Prefer concrete developments, decisions, scores, schedules, deadlines, countdowns, filings, releases, and verified status updates. A useful alert may say that nothing changed, for example: “According to the Mets’ transaction log, the team made no roster moves today,” but only when that absence is verified from a current authoritative source. Another valid alert is: “MLB’s schedule lists the Mets against the Dodgers today at 3 p.m. Eastern, with Senga scheduled to start.”
 
 Never stretch a headline into commentary. Do not explain why something matters unless a short clause is essential to understanding the fact. Do not speculate, recap the alert, preview later items, summarize at the end, or use empty phrases such as “what happens next remains to be seen.” Do not add an outro. Do not mention runtime, duration, podcast length, or how many minutes the listener is getting.
 
-The opening must say only the listener's name and today's date, for example: “Anthony, today is Thursday, July sixteenth.” Begin the first alert immediately afterward. Start each alert with a compact subject cue when useful, such as “Mets:” or “AI:”. A brief transition is allowed only when it adds orientation; never use a full sentence merely as a segue. Do not put publisher names, source labels, citations, URLs, or parenthetical attributions in the spoken sections; sources belong only in the sources array. Do not include markdown or read URLs aloud.
+The opening must say only the listener's name and today's date, for example: “Anthony, today is Thursday, July sixteenth.” Begin the first alert immediately afterward. A brief subject cue is allowed only when it adds orientation. Do not speak URLs or use parenthetical citations; weave the source name naturally into the sentence. Do not include markdown.
 
 Use at least two independent credible sources for disputed, political, medical, financial, or developing claims. Prefer original reporting, official documents, league and team schedules, filings, and primary sources. Exclude vague, promotional, sensational, or poorly sourced items.
 
 Every factual claim must be supported by sources you consulted. Return a concise source label and direct URL for each source. Never invent facts, quotations, statistics, context, or URLs. If a story cannot be explained from reliable current reporting, exclude it.`;
+
+  function extractConsultedSources(payload) {
+    const found = [];
+    const visit = (value) => {
+      if (!value || typeof value !== "object") return;
+      if (typeof value.url === "string" && /^https?:\/\//i.test(value.url)) {
+        let label;
+        try { label = value.title || value.name || new URL(value.url).hostname.replace(/^www\./, ""); }
+        catch { label = value.title || value.name || "Source"; }
+        found.push({ label: String(label).slice(0, 180), url: value.url });
+      }
+      Object.values(value).forEach(visit);
+    };
+    visit(payload);
+    return found.filter((source, index, all) =>
+      all.findIndex((candidate) => candidate.url === source.url) === index);
+  }
 
   async function requestBriefing(requestPrompt) {
     const response = await fetch("https://api.openai.com/v1/responses", {
@@ -255,35 +276,76 @@ Every factual claim must be supported by sources you consulted. Return a concise
     const payload = await response.json();
     const raw = responseText(payload);
     if (!raw) throw new Error("OpenAI returned no briefing text");
-    return { briefing: JSON.parse(raw), raw };
+    return { briefing: JSON.parse(raw), raw, consultedSources: extractConsultedSources(payload) };
+  }
+
+  async function verifySources(sources) {
+    return Promise.all(sources.map(async (source) => {
+      try {
+        const response = await fetch(source.url, {
+          method: "HEAD",
+          redirect: "follow",
+          signal: AbortSignal.timeout(5_000),
+          headers: { "User-Agent": "GoJo/0.1 source verifier" }
+        });
+        return { source, valid: response.status !== 404 && response.status !== 410 };
+      } catch {
+        return { source, valid: false };
+      }
+    }));
   }
 
   let result = await requestBriefing(prompt);
-  const researchedSources = [...result.briefing.sources];
+  let consultedSources = [...result.consultedSources];
   const alertIsInvalid = (section, index) => {
     if (index === 0) return !section.trim();
     const wordCount = section.trim().split(/\s+/).filter(Boolean).length;
-    return wordCount < 6 || wordCount > 40 || /^sources?\s*:?$/i.test(section.trim());
+    return wordCount < 10 || wordCount > 50 || /^sources?\s*:?$/i.test(section.trim());
   };
   if (result.briefing.sections.some(alertIsInvalid)) {
     result = await requestBriefing(`${prompt}
 
-The previous draft violated the alert format. Rewrite every item after the date as a complete factual statement containing 6 to 40 words, a subject, and a verb. Delete headings, topic labels, “Sources,” empty strings, commentary, background, repetition, previews, recaps, and filler. Preserve only the newest useful facts. Keep the dated opening and 6 to 12 alerts, with no outro.
+The previous draft violated the story-alert format. Rewrite every item after the date as a specific reported story containing 12 to 45 words. Name the source naturally inside every alert and add one concrete supporting detail. Delete category-level trends, headings, topic labels, “Sources,” empty strings, commentary, repetition, previews, recaps, and filler. Keep the dated opening and 6 to 12 alerts, with no outro.
 
 Previous draft:
 ${result.raw}`);
+    consultedSources = [...consultedSources, ...result.consultedSources];
   }
-  const briefing = result.briefing;
-  briefing.sections = briefing.sections.map((section, index) => index === 0
-    ? section
-    : section.replace(/\s*\((?:source:\s*)?[^()]{2,80}\)\s*$/i, "").trim());
+  let briefing = result.briefing;
+  briefing.sections = briefing.sections.map((section) =>
+    section.replace(/\s*\((?:source:\s*)?[^()]{2,80}\)\s*$/i, "").trim());
+  if (!/\btoday is\b/i.test(briefing.sections[0] || "")) {
+    const name = String(profile.name || "there").trim().slice(0, 40);
+    briefing.sections.unshift(`${name}, today is ${today}.`);
+    briefing.sections = briefing.sections.slice(0, 13);
+  }
+  if (/\btoday is\b/i.test(briefing.title)) briefing.title = "Your alerts, right now";
   if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");
-  briefing.alert_count = briefing.sections.length - 1;
-  briefing.sources = [...briefing.sources, ...researchedSources]
+
+  if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");
+  const sourceCandidates = consultedSources.length ? consultedSources : briefing.sources;
+  const sourceChecks = await verifySources(sourceCandidates);
+  briefing.sources = sourceChecks.filter((check) => check.valid).map((check) => check.source)
     .filter((source, index, all) => /^https?:\/\//i.test(source.url)
       && all.findIndex((candidate) => candidate.url === source.url) === index)
     .slice(0, 20);
   if (briefing.sources.length < 2) throw new Error("Briefing returned insufficient sources");
+  const publisherAliases = briefing.sources.flatMap((source) => {
+    let hostAlias = "";
+    try {
+      const parts = new URL(source.url).hostname.replace(/^www\./, "").split(".");
+      hostAlias = parts.length > 1 ? parts[parts.length - 2] : parts[0];
+    } catch {}
+    const labelAlias = source.label.split(/\s+(?:on|—|-)\s+/i)[0].split(/\s+/).slice(0, 2).join("");
+    return [hostAlias, labelAlias].map((alias) => alias.toLowerCase().replace(/[^a-z0-9]/g, "")).filter(Boolean);
+  });
+  const sourcedAlerts = briefing.sections.slice(1).filter((alert) => {
+    const normalizedAlert = alert.toLowerCase().replace(/[^a-z0-9]/g, "");
+    return publisherAliases.some((alias) => alias.length >= 4 && normalizedAlert.includes(alias));
+  });
+  if (sourcedAlerts.length < 3) throw new Error("Briefing returned too few alerts with verified source attribution");
+  briefing.sections = [briefing.sections[0], ...sourcedAlerts];
+  briefing.alert_count = sourcedAlerts.length;
   return briefing;
 }
 

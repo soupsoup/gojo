@@ -1,28 +1,28 @@
 {
   "id": "email-poc-001",
-  "title": "AI, baseball, media, and markets — right now.",
-  "alert_count": 8,
+  "title": "AI and markets — reported now.",
+  "alert_count": 6,
   "sections": [
     "Anthony, today is Thursday, July sixteenth.",
-    "AI infrastructure: Chipmakers and cloud providers continue increasing spending on data centers, processors, networking equipment, and power.",
-    "Enterprise AI: Businesses are prioritizing tools tied to measurable workflows over general-purpose chatbots.",
-    "Mets: The team is weighing roster help against preserving prospects and payroll flexibility.",
-    "Baseball: The quality of prospects included in trade talks will signal how aggressively the Mets intend to act.",
-    "Streaming: Major platforms are emphasizing subscriber retention over growth at any cost.",
-    "Media: Live sports, advertising tiers, and bundles are becoming the main tools for reducing cancellations.",
-    "Markets: Better-than-expected earnings are supporting stocks.",
-    "Energy: Higher oil prices are keeping inflation risk in focus."
+    "ASML said customers are accelerating capacity plans because demand for advanced chips continues to outpace supply.",
+    "ASML raised its twenty twenty-six sales outlook to between thirty-six and forty billion euros.",
+    "A study published on arXiv found eleven percent of S and P five hundred companies had deeply integrated AI by twenty twenty-five.",
+    "The same arXiv study reports another ten percent of those companies were using AI in production or service delivery.",
+    "The Associated Press reports technology shares moved higher as investors responded to strong corporate earnings.",
+    "The Associated Press reports higher oil prices are complicating the market outlook by keeping inflation risk elevated."
   ],
   "audio_sections": [
     "Anthony, today is Thursday, July sixteenth.",
-    "AI infrastructure: Chipmakers and cloud providers continue increasing spending on data centers, processors, networking equipment, and power.",
-    "Enterprise AI: Businesses are prioritizing tools tied to measurable workflows over general-purpose chatbots.",
-    "Mets: The team is weighing roster help against preserving prospects and payroll flexibility.",
-    "Baseball: The quality of prospects included in trade talks will signal how aggressively the Mets intend to act.",
-    "Streaming: Major platforms are emphasizing subscriber retention over growth at any cost.",
-    "Media: Live sports, advertising tiers, and bundles are becoming the main tools for reducing cancellations.",
-    "Markets: Better-than-expected earnings are supporting stocks.",
-    "Energy: Higher oil prices are keeping inflation risk in focus."
+    "ASML said customers are accelerating capacity plans because demand for advanced chips continues to outpace supply.",
+    "ASML raised its twenty twenty-six sales outlook to between thirty-six and forty billion euros.",
+    "A study published on arXiv found eleven percent of S and P five hundred companies had deeply integrated AI by twenty twenty-five.",
+    "The same arXiv study reports another ten percent of those companies were using AI in production or service delivery.",
+    "The Associated Press reports technology shares moved higher as investors responded to strong corporate earnings.",
+    "The Associated Press reports higher oil prices are complicating the market outlook by keeping inflation risk elevated."
   ],
-  "sources": []
+  "sources": [
+    { "label": "ASML — First-quarter 2026 financial results and outlook", "url": "https://www.asml.com/en/news/press-releases/2026/q1-2026-financial-results" },
+    { "label": "arXiv — AI Adoption in S&P 500 Firms", "url": "https://arxiv.org/abs/2607.08920" },
+    { "label": "Associated Press — Technology stocks lead markets higher", "url": "https://www.local10.com/business/2026/07/15/technology-stocks-lead-markets-higher-while-oil-prices-keep-rising/" }
+  ]
 }
