@@ -192,33 +192,14 @@ async function generateModelBriefing(profile) {
   const today = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York", weekday: "long", year: "numeric", month: "long", day: "numeric"
   }).format(new Date());
-  const requestedMinutes = [1, 2, 5].includes(Number.parseInt(profile.length, 10))
-    ? Number.parseInt(profile.length, 10)
-    : 5;
-  const durationPlans = {
-    1: {
-      seconds: 60, stories: 1, minWords: 110, targetWords: 135, maxWords: 180,
-      structure: "Write exactly three natural spoken sections: a dated opening of five to twelve words, one story of one hundred to one hundred twenty-five words, and a close of ten to fifteen words. The complete script must contain one hundred twenty to one hundred fifty words."
-    },
-    2: {
-      seconds: 120, stories: 2, minWords: 220, targetWords: 270, maxWords: 340,
-      structure: "Write exactly four natural spoken sections: a dated opening of five to twelve words, two story sections of one hundred five to one hundred thirty words each, and a close of fifteen to twenty-five words. The complete script must contain two hundred forty to three hundred words."
-    },
-    5: {
-      seconds: 300, stories: 4, minWords: 425, targetWords: 650, maxWords: 850,
-      structure: "Write exactly six natural spoken sections: a dated opening of five to twelve words, four story sections of one hundred forty to one hundred sixty words each, and a close of twenty-five to forty words. The complete script must contain at least six hundred words and no more than seven hundred words."
-    }
-  };
-  const plan = durationPlans[requestedMinutes];
-
   const schema = {
     type: "object",
     properties: {
       title: { type: "string" },
-      estimated_seconds: { type: "integer" },
-      sections: { type: "array", items: { type: "string" } },
+      alert_count: { type: "integer" },
+      sections: { type: "array", minItems: 7, maxItems: 13, items: { type: "string", minLength: 20, maxLength: 300 } },
       sources: {
-        type: "array",
+        type: "array", minItems: 2, maxItems: 20,
         items: {
           type: "object",
           properties: { label: { type: "string" }, url: { type: "string" } },
@@ -227,20 +208,24 @@ async function generateModelBriefing(profile) {
         }
       }
     },
-    required: ["title", "estimated_seconds", "sections", "sources"],
+    required: ["title", "alert_count", "sections", "sources"],
     additionalProperties: false
   };
 
   const prompt = `You are the editorial engine for GoJo. Today is ${today}.
 
-Create a personalized ${requestedMinutes}-minute spoken news briefing for this listener profile:
+Create a personalized rapid audio alert rundown for this listener profile:
 ${JSON.stringify(profile)}
 
-Treat every selected subtopic as an intentional editorial search query, including narrow phrases, named people, companies, teams, places, and ongoing themes. The topicGroups array contains the listener's three main topics in their requested audio rundown order, followed by the five selected subtopics within each. Sequence the briefing by that main-topic order and spread coverage across the three groups before adding a second story from any one group. Within each group, select the strongest consequential development matching one or more chosen subtopics. If a group has no consequential, reliably sourced development today, skip it instead of forcing a weak story, then continue with the next group. Preserve the specificity of the selected subtopics; do not flatten them into broad categories. Search the web for reporting published or materially updated within the last twenty-four hours. Select exactly ${plan.stories} consequential ${plan.stories === 1 ? "story" : "stories"} with the strongest direct relevance to the listener's stated topics. Include a major story outside those interests only when it is genuinely essential.
+Treat every selected subtopic as an intentional editorial search query. The topicGroups array contains the listener's three main topics in requested order. Search reporting and official schedules published or materially updated within the last twenty-four hours. Spread alerts across all three groups before adding more from one group. Aim for two to four useful alerts per group when reliable information exists.
 
-For every story, explain in plain language: what happened, essential background, why it matters, and what to watch next. Use at least two independent credible sources for disputed, political, medical, financial, or developing claims. Prefer original reporting, official documents, and primary sources. Exclude vague, promotional, sensational, or poorly sourced items.
+This is an alert feed, not a podcast and not an essay. Return one dated opening followed by 6 to 12 alerts. Each alert must communicate exactly one useful fact in one or two short sentences and contain 6 to 40 words. Most should be 8 to 25 words. Every alert must be a complete factual statement with a subject and verb. A topic label such as “Sports — Baseball” is not an alert and is forbidden. Never put headings, section labels, “Sources,” or empty strings in the sections array. Prefer concrete developments, decisions, scores, schedules, deadlines, countdowns, filings, releases, and verified status updates. A useful alert may simply say that nothing changed, for example: “The Mets made no roster moves today,” but only when that absence is verified from a current authoritative source. Another valid alert is: “The Mets play the Dodgers today at 3 p.m. Eastern.”
 
-${plan.structure} The opening must say only the listener's name and today's date, for example: “Anthony, today is Wednesday, July fifteenth.” Do not say good morning, good afternoon, a clock time, or any other time-of-day phrase. Do not preview or list the stories. Begin the first story immediately after the date. Every story after the first must open with a brief broadcast segue that names the new subject area and flows directly into the story, for example: “Switching over to sports, in baseball the Mets’ deadline decision is becoming clearer.” Vary the segue language—such as “Turning to business,” “Over in politics,” or “Switching to sports”—so the briefing sounds smoothly edited rather than numbered. Do not finish early. Use the available space for concrete background and explanation, not repetition. Use short sentences and conversational transitions. Do not include markdown or read URLs aloud.
+Never stretch a headline into commentary. Do not explain why something matters unless a short clause is essential to understanding the fact. Do not speculate, recap the alert, preview later items, summarize at the end, or use empty phrases such as “what happens next remains to be seen.” Do not add an outro. Do not mention runtime, duration, podcast length, or how many minutes the listener is getting.
+
+The opening must say only the listener's name and today's date, for example: “Anthony, today is Thursday, July sixteenth.” Begin the first alert immediately afterward. Start each alert with a compact subject cue when useful, such as “Mets:” or “AI:”. A brief transition is allowed only when it adds orientation; never use a full sentence merely as a segue. Do not put publisher names, source labels, citations, URLs, or parenthetical attributions in the spoken sections; sources belong only in the sources array. Do not include markdown or read URLs aloud.
+
+Use at least two independent credible sources for disputed, political, medical, financial, or developing claims. Prefer original reporting, official documents, league and team schedules, filings, and primary sources. Exclude vague, promotional, sensational, or poorly sourced items.
 
 Every factual claim must be supported by sources you consulted. Return a concise source label and direct URL for each source. Never invent facts, quotations, statistics, context, or URLs. If a story cannot be explained from reliable current reporting, exclude it.`;
 
@@ -274,20 +259,30 @@ Every factual claim must be supported by sources you consulted. Return a concise
   }
 
   let result = await requestBriefing(prompt);
-  let words = result.briefing.sections.join(" ").trim().split(/\s+/).length;
-  if (words < plan.targetWords * 0.92) {
+  const researchedSources = [...result.briefing.sources];
+  const alertIsInvalid = (section, index) => {
+    if (index === 0) return !section.trim();
+    const wordCount = section.trim().split(/\s+/).filter(Boolean).length;
+    return wordCount < 6 || wordCount > 40 || /^sources?\s*:?$/i.test(section.trim());
+  };
+  if (result.briefing.sections.some(alertIsInvalid)) {
     result = await requestBriefing(`${prompt}
 
-The previous draft below was only ${words} words and did not provide enough context for the requested ${requestedMinutes}-minute runtime. Research each selected story more deeply by opening and comparing multiple reports. Rewrite it to approximately ${plan.targetWords} words. For each story, explicitly identify the central event, the people or organizations involved, the relevant background, the concrete consequences, and the next development to watch. Do not pad or repeat. Replace unclear headline language with a self-contained explanation a listener can understand without prior knowledge.
+The previous draft violated the alert format. Rewrite every item after the date as a complete factual statement containing 6 to 40 words, a subject, and a verb. Delete headings, topic labels, “Sources,” empty strings, commentary, background, repetition, previews, recaps, and filler. Preserve only the newest useful facts. Keep the dated opening and 6 to 12 alerts, with no outro.
 
 Previous draft:
 ${result.raw}`);
-    words = result.briefing.sections.join(" ").trim().split(/\s+/).length;
   }
   const briefing = result.briefing;
-  if (words < plan.minWords || words > plan.maxWords) throw new Error(`Briefing length outside safe range after expansion: ${words} words`);
-  briefing.estimated_seconds = plan.seconds;
-  briefing.sources = briefing.sources.filter((source) => /^https?:\/\//i.test(source.url)).slice(0, 12);
+  briefing.sections = briefing.sections.map((section, index) => index === 0
+    ? section
+    : section.replace(/\s*\((?:source:\s*)?[^()]{2,80}\)\s*$/i, "").trim());
+  if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");
+  briefing.alert_count = briefing.sections.length - 1;
+  briefing.sources = [...briefing.sources, ...researchedSources]
+    .filter((source, index, all) => /^https?:\/\//i.test(source.url)
+      && all.findIndex((candidate) => candidate.url === source.url) === index)
+    .slice(0, 20);
   if (briefing.sources.length < 2) throw new Error("Briefing returned insufficient sources");
   return briefing;
 }
@@ -346,16 +341,13 @@ async function handleBriefing(req, res) {
     const spokenDate = new Intl.DateTimeFormat("en-US", {
       weekday: "long", month: "long", day: "numeric"
     }).format(new Date());
-    const requestedMinutes = [1, 2, 5].includes(Number.parseInt(body.length, 10)) ? Number.parseInt(body.length, 10) : 5;
-    const focus = topics.length ? topics.join(", ") : "your priorities";
     const sections = [
       `${name}, today is ${spokenDate}.`,
-      ...stories.map((story, index) => `${index === 0 ? "Your lead" : index === 1 ? "Next" : "One more development"} is in ${story.preference}. ${story.source} reports: ${story.title.replace(/[.!?]+$/, "")}.`),
-      `That is your ${requestedMinutes}-minute GoJo briefing for now. Your next edition will keep learning from what you follow, skip, and ask to hear more about.`
+      ...stories.map((story) => `${story.preference}: ${story.title.replace(/[.!?]+$/, "")}.`)
     ];
     json(res, 200, {
       title: stories.map((story) => story.preference).slice(0, 2).join(" + ") + ", right now",
-      estimated_seconds: requestedMinutes * 60,
+      alert_count: stories.length,
       sections,
       sources: stories.map((story) => ({ label: `${story.source} — ${story.title}`, url: story.url, publishedAt: story.publishedAt }))
     });

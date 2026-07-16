@@ -1,16 +1,16 @@
 # GoJo
 
-GoJo turns a listener’s interests into a concise, sourced audio news briefing. During onboarding, the listener selects three main topics, chooses up to five subtopics within each, and ranks the main topics in the order they want to hear them. GoJo researches current reporting, writes a contextual spoken script, and narrates each section with a rotating cast of ElevenLabs voices.
+GoJo turns a listener’s interests into a fast, sourced audio alert wire. During onboarding, the listener selects three main topics, chooses up to five subtopics within each, and ranks the main topics in the order they want to hear them. GoJo researches current reporting, writes compact factual alerts, and narrates each item with a rotating cast of ElevenLabs voices.
 
-The current product is a web prototype designed around a five-minute morning briefing. It also includes an email proof of concept containing the written audio script and a link to play the same briefing online.
+The current product is a web prototype built around short, useful updates rather than a fixed runtime. It also includes an email proof of concept containing the written alerts and a link to play the same rundown online.
 
 ## What it does
 
 - Voice-assisted onboarding with preset topic and subtopic bubbles
 - Drag-and-drop control over the audio rundown order
 - Current-news research and briefing generation with OpenAI web search
-- Contextual summaries covering what happened, essential background, why it matters, and what to watch next
-- Smooth spoken transitions between topic sections
+- One-fact alerts covering developments, decisions, schedules, deadlines, countdowns, and verified status updates
+- Hard limits that prevent commentary and filler from expanding each alert
 - Multi-voice ElevenLabs narration with a primary host and alternating correspondents
 - Source links for the reporting used in each briefing
 - Responsive web player with transcript and source display
@@ -24,7 +24,7 @@ The current product is a web prototype designed around a five-minute morning bri
 4. The browser sends the ordered profile to `POST /api/briefing`.
 5. The server asks OpenAI to research recent reporting and return a sourced, structured script.
 6. The browser sends the script’s sections to `POST /api/tts`.
-7. ElevenLabs generates one continuous audio briefing using different voices for the host and story sections.
+7. ElevenLabs generates one continuous audio rundown using different voices for the date stamp and alert items.
 
 If a selected topic does not have a consequential, reliably sourced development, the editorial prompt instructs the model to skip it instead of forcing a weak story.
 
@@ -141,5 +141,5 @@ Because API credentials are read only on the server, they should be configured a
 
 - Listener profiles are stored in browser `localStorage`; there is no account system or database yet.
 - Scheduled email delivery is represented by a proof of concept and is not yet an automated production workflow.
-- The briefing length is currently fixed at five minutes.
+- Alert volume depends on the number of useful, verified developments available.
 - Freeform topics, tone selection, depth selection, and delivery-time controls remain in the code behind disabled feature flags for possible future use.

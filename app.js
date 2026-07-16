@@ -45,13 +45,15 @@ const questions = [
 ];
 
 const todayBriefing = {
-  title: "AI momentum meets a riskier market",
+  title: "Technology and markets, right now",
   sections: [
-    "{{name}}, today is Wednesday, July fifteenth. Artificial intelligence is again becoming a familiar force in the market.",
-    "Technology shares are leading markets higher today after several uneven weeks. As of midmorning Eastern time, the S and P five hundred was up four-tenths of a percent, while the Nasdaq had gained six-tenths. Companies tied to the artificial-intelligence buildout were among the leaders. But this is not a simple risk-on story. Oil remains near a one-month high because of the war with Iran, leaving investors to balance enthusiasm for technology against higher energy costs and geopolitical uncertainty.",
-    "One reason the AI trade still has support is demand for the physical infrastructure behind it. Dutch chip-equipment leader A S M L has said demand for advanced chips is outpacing supply as customers accelerate capacity plans. The company raised its twenty twenty-six sales outlook earlier this year to between thirty-six and forty billion euros. The takeaway: even as individual AI products change quickly, spending on the machines needed to manufacture advanced chips remains a powerful business signal.",
-    "And a useful reality check on adoption: a new study of S and P five hundred companies found that eleven percent had deeply integrated AI into business processes by twenty twenty-five, with another ten percent using it in production or service delivery. That is more than four times the adoption measured in twenty twenty-two—but deep adoption is still concentrated in technology companies, which account for roughly two-thirds of the total.",
-    "So today’s signal is this: markets are rewarding AI momentum again, while the underlying data says the transformation is real—but still far from evenly distributed. That’s your GoJo briefing."
+    "{{name}}, today is Thursday, July sixteenth.",
+    "Markets: Technology shares moved higher while oil remained near a one-month high.",
+    "AI infrastructure: ASML says demand for advanced-chip manufacturing equipment continues to outpace supply.",
+    "Enterprise AI: Eleven percent of S and P five hundred companies had deeply integrated AI into business processes by twenty twenty-five.",
+    "Energy: Higher oil prices are keeping inflation risk in focus for investors.",
+    "Semiconductors: ASML expects twenty twenty-six sales between thirty-six and forty billion euros.",
+    "Adoption: Deep enterprise AI use remains concentrated in technology companies."
   ],
   sources: [
     { label: "Associated Press — Technology stocks lead markets higher", url: "https://www.local10.com/business/2026/07/15/technology-stocks-lead-markets-higher-while-oil-prices-keep-rising/" },
@@ -289,7 +291,6 @@ function updateNextState() {
 }
 
 function completeSetup() {
-  if (!ENABLE_BRIEFING_LENGTH) answers.length = "5 minutes";
   if (!ENABLE_FREEFORM_TOPICS || answers.topicMode === "Explore topic bubbles") {
     answers.topicMode = "Explore topic bubbles";
     const mainTopicOrder = answers.briefingOrder?.length ? answers.briefingOrder : (answers.mainTopics || []);
@@ -309,11 +310,10 @@ function completeSetup() {
     : answers.topics ? [answers.topics] : [];
   answers.topics = topicValues;
   const topics = (answers.topicGroups || []).map((group) => group.mainTopic).join(", ") || topicValues.join(", ");
-  const minutes = Number.parseInt(answers.length, 10) || 5;
-  $("recordDuration").textContent = `${minutes}:00`;
-  $("durationDisplay").textContent = `${minutes}:00`;
-  $("profileSummary").textContent = `Your briefing tracks ${topics || "your priorities"} in the order you chose.`;
-  $("briefingTitle").textContent = "Curating your news…";
+  $("recordDuration").textContent = "LIVE";
+  $("durationDisplay").textContent = "SCANNING";
+  $("profileSummary").textContent = `Your alert wire tracks ${topics || "your priorities"} in the order you chose.`;
+  $("briefingTitle").textContent = "Scanning for useful signals…";
   $("todayDate").textContent = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()).toUpperCase();
   $("transcript").innerHTML = "<p>Scanning today’s reporting against your priorities…</p>";
   $("sourceList").innerHTML = "";
@@ -324,12 +324,10 @@ function completeSetup() {
 function renderBriefing(briefing) {
   $("playButton").disabled = false;
   $("briefingTitle").textContent = briefing.title;
-  if (briefing.estimated_seconds) {
-    const minutes = Math.max(1, Math.round(briefing.estimated_seconds / 60));
-    $("recordDuration").textContent = `${minutes}:00`;
-    $("durationDisplay").textContent = `${minutes}:00`;
-  }
   const spokenSections = briefing.audio_sections || briefing.sections;
+  const alertCount = briefing.alert_count || Math.max(0, spokenSections.length - 1);
+  $("recordDuration").textContent = String(alertCount).padStart(2, "0");
+  $("durationDisplay").textContent = `${alertCount} ALERT${alertCount === 1 ? "" : "S"}`;
   activeBriefingSections = spokenSections.map((section) => section.replace("{{name}}", answers.name || "there"));
   activeBriefingScript = activeBriefingSections.join(" ");
   $("transcript").innerHTML = spokenSections
@@ -411,7 +409,7 @@ function applyVoiceAnswer(text) {
 function setPlaybackState(active) {
   document.querySelector(".player-card").classList.toggle("playing", active);
   $("playButton").textContent = active ? "Ⅱ" : "▶";
-  $("previewButton").innerHTML = active ? '<span class="play-mini">Ⅱ</span> Pause preview' : '<span class="play-mini">▶</span> Hear a 20-sec preview';
+  $("previewButton").innerHTML = active ? '<span class="play-mini">Ⅱ</span> Pause alerts' : '<span class="play-mini">▶</span> Hear a sample';
 }
 
 async function playBriefing() {
@@ -460,12 +458,6 @@ async function playBriefing() {
       generatedAudio = new Audio(generatedAudioUrl);
       generatedAudio.addEventListener("ended", () => setPlaybackState(false));
       generatedAudio.addEventListener("pause", () => setPlaybackState(false));
-      generatedAudio.addEventListener("loadedmetadata", () => {
-        if (!Number.isFinite(generatedAudio.duration)) return;
-        const minutes = Math.floor(generatedAudio.duration / 60);
-        const seconds = Math.floor(generatedAudio.duration % 60).toString().padStart(2, "0");
-        $("durationDisplay").textContent = `${minutes}:${seconds}`;
-      });
     }
     setPlaybackState(true);
     await generatedAudio.play();
@@ -546,7 +538,6 @@ if (autoplayRequested) {
   answers = saved ? JSON.parse(saved) : {
     topicMode: "Enter and rank my topics",
     topics: ["Artificial intelligence business strategy", "New York Mets", "Media and streaming", "Financial markets"],
-    length: "5 minutes",
     depth: "Explain why it matters",
     tone: "Conversational",
     delivery: "7:00 AM",
