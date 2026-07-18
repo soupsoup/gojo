@@ -41,13 +41,29 @@ If a selected topic does not have a consequential, reliably sourced development,
 
 No frontend framework or build step is required.
 
-## Local development
+## How Codex and GPT-5.6 were used
+
+Codex was the development partner used to take GoJo from an early product idea to a working, deployed prototype. It helped:
+
+- Plan and repeatedly revise the onboarding, topic-ranking, player, and email experiences
+- Write and refactor the HTML, CSS, browser JavaScript, Node.js server, and Vercel function
+- Connect the OpenAI and ElevenLabs APIs
+- Test the application locally and diagnose failures in the briefing and audio flows
+- Improve the editorial system after reviewing real output, including source-page verification, unsupported-alert filtering, and event-level deduplication
+- Prepare documentation, manage the private GitHub repository, and deploy the application to Vercel
+
+GPT-5.6 Terra is the default runtime editorial model in `server.js`. For each briefing, the server sends the listener's ordered interests to the OpenAI Responses API. GPT-5.6 uses the web-search tool to research current reporting, then returns a structured JSON rundown containing short, attributed alerts and direct source links. The server subsequently validates the sources, filters unsupported items, and removes overlapping stories before sending the script to ElevenLabs for narration.
+
+These are separate roles: Codex was used to build and iterate on the product; GPT-5.6 powers the live news-research and script-generation workflow inside the product. ElevenLabs, rather than GPT-5.6, generates the spoken audio.
+
+## Local setup
 
 Requirements:
 
 - Node.js 18 or newer
 - An OpenAI API key
 - An ElevenLabs API key
+- Git access to the private repository
 
 Clone the repository and enter the project directory:
 
@@ -56,13 +72,25 @@ git clone https://github.com/soupsoup/gojo.git
 cd gojo
 ```
 
+The project currently has no third-party npm packages, so there is no required dependency-install step. If dependencies are added later, run `npm install` before starting the server.
+
 Create a local environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-Add your API credentials to `.env`, then start the app:
+Open `.env` and configure at least:
+
+```dotenv
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_SUMMARY_MODEL=gpt-5.6-terra
+ELEVENLABS_API_KEY=your_elevenlabs_api_key
+```
+
+The application code defaults to `gpt-5.6-terra` when `OPENAI_SUMMARY_MODEL` is absent. The example environment file may specify another model for lower-cost development, so set the variable explicitly when you want to test the production GPT-5.6 workflow.
+
+Start the local server:
 
 ```bash
 npm start
@@ -70,18 +98,22 @@ npm start
 
 Open [http://localhost:4173](http://localhost:4173).
 
+Complete onboarding by choosing three main topics, selecting up to five subtopics for each, and ranking the main topics. Creating a rundown makes live OpenAI web-search and ElevenLabs API requests, which may incur usage charges.
+
 Run the syntax checks with:
 
 ```bash
 npm run check
 ```
 
+If the server reports that a voice or briefing is unavailable, confirm that the relevant key is present in `.env`, restart `npm start`, and inspect the terminal response for the upstream API error.
+
 ## Environment variables
 
 | Variable | Required | Purpose |
 | --- | --- | --- |
 | `OPENAI_API_KEY` | Yes | Researches current news and generates the structured briefing. |
-| `OPENAI_SUMMARY_MODEL` | No | Overrides the briefing model. The server provides a default. |
+| `OPENAI_SUMMARY_MODEL` | No | Overrides the editorial model; defaults to `gpt-5.6-terra` in `server.js`. |
 | `ELEVENLABS_API_KEY` | Yes | Generates onboarding and briefing audio. |
 | `ELEVENLABS_VOICE_ID` | No | Primary GoJo host voice. |
 | `ELEVENLABS_VOICE_ID_2` | No | First correspondent voice. |
@@ -113,15 +145,19 @@ The email proof-of-concept audio link can launch the locked demo edition with:
 
 The repository includes `vercel.json`; no separate build command is required.
 
-1. Import the repository into Vercel.
-2. Add the required environment variables to the Vercel project.
-3. Deploy the project.
+1. Import the private GitHub repository into Vercel and grant Vercel access to it.
+2. Add `OPENAI_API_KEY`, `OPENAI_SUMMARY_MODEL=gpt-5.6-terra`, and `ELEVENLABS_API_KEY` in **Project Settings → Environment Variables**.
+3. Add any custom ElevenLabs voice IDs you want to keep consistent across environments.
+4. Apply the variables to Production, Preview, and Development as appropriate.
+5. Deploy the project.
 
 From the Vercel CLI, an already linked project can be deployed with:
 
 ```bash
 vercel deploy --prod
 ```
+
+After changing an environment variable, redeploy so the serverless function receives the new value.
 
 Because API credentials are read only on the server, they should be configured as Vercel environment variables and must never be exposed in browser code.
 
