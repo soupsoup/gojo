@@ -19,6 +19,10 @@ const ENABLE_FREEFORM_TOPICS = false;
 const ENABLE_STYLE_SETTINGS = false;
 // Keep delivery scheduling ready for a future release.
 const ENABLE_DELIVERY_SETTINGS = false;
+// Keep the audio product and voice onboarding code available for a later
+// phase, while the current release focuses on signup and daily email.
+const ENABLE_AUDIO_EXPERIENCE = false;
+const ENABLE_VOICE_ONBOARDING = false;
 
 const subtopicQuestions = [0, 1, 2].map((topicIndex) => ({
   key: `subtopics${topicIndex + 1}`,
@@ -36,12 +40,13 @@ const questions = [
   { key: "topics", kicker: "Build your priority list", question: "What should GoJo track first?", hint: "Enter topics from most to least important, separated by commas.", tags: true, when: (profile) => ENABLE_FREEFORM_TOPICS && profile.topicMode === "Enter and rank my topics" },
   { key: "mainTopics", kicker: "Choose your main signals", question: "Which parts of the world should lead your briefing?", hint: "Choose exactly three. We’ll open each one into more precise subtopics next.", multi: true, min: 3, max: 3, options: Object.keys(subtopicsByMainTopic), when: (profile) => !ENABLE_FREEFORM_TOPICS || profile.topicMode === "Explore topic bubbles" },
   ...subtopicQuestions,
-  { key: "briefingOrder", kicker: "Set your rundown", question: "What should you hear first?", hint: "Drag your three main topics into the order you want them to appear in your audio briefing.", rank: true, when: (profile) => !ENABLE_FREEFORM_TOPICS || profile.topicMode === "Explore topic bubbles" },
+  { key: "briefingOrder", kicker: "Set your edition", question: "What should appear first?", hint: "Drag your three main topics into the order you want them to appear in your morning email.", rank: true, when: (profile) => !ENABLE_FREEFORM_TOPICS || profile.topicMode === "Explore topic bubbles" },
   { key: "length", kicker: "Set the runtime", question: "How long should your briefing be?", hint: "Choose a quick signal or make room for more context.", options: ["1 minute", "2 minutes", "5 minutes"], when: () => ENABLE_BRIEFING_LENGTH },
   { key: "depth", kicker: "Set the depth", question: "How should your briefing feel?", hint: "Choose how much explanation belongs behind each headline.", options: ["Headlines only", "Headlines + context", "Explain why it matters"], when: () => ENABLE_STYLE_SETTINGS },
   { key: "tone", kicker: "Choose the voice", question: "What tone should greet you?", hint: "The reporting stays factual. The delivery is yours.", options: ["Straight + neutral", "Calm", "Conversational", "Energetic"], when: () => ENABLE_STYLE_SETTINGS },
   { key: "delivery", kicker: "Pick the moment", question: "When should your briefing arrive?", hint: "This prototype saves your preferred morning window.", options: ["6:30 AM", "7:00 AM", "7:30 AM", "8:00 AM", "On my first commute"], when: () => ENABLE_DELIVERY_SETTINGS },
-  { key: "name", kicker: "One last thing", question: "What should your GoJo call you?", hint: "Say your name or type it below.", text: true }
+  { key: "name", kicker: "Your edition", question: "What should we call you?", hint: "We’ll use your first name in your daily briefing.", text: true },
+  { key: "email", kicker: "Daily delivery", question: "Where should we send your GoJo?", hint: "Enter the email address for your morning edition.", text: true, email: true }
 ];
 
 const todayBriefing = {
@@ -182,9 +187,13 @@ function renderQuestion() {
   $("customInput").value = q.tags
     ? (Array.isArray(answers[q.key]) ? answers[q.key].join(", ") : (answers[q.key] || ""))
     : q.text ? (answers[q.key] || "") : "";
-  $("customInput").placeholder = q.tags
-    ? "e.g. AI copyright lawsuits, New York Mets prospects, independent film distribution"
-    : q.text ? "Type your name…" : "Tell us what you follow…";
+  $("customInput").type = q.email ? "email" : "text";
+  $("customInput").autocomplete = q.email ? "email" : q.text ? "given-name" : "off";
+  $("customInput").placeholder = q.email
+    ? "you@example.com"
+    : q.tags
+      ? "e.g. AI copyright lawsuits, New York Mets prospects, independent film distribution"
+      : q.text ? "Type your name…" : "Tell us what you follow…";
   renderRankedTopics();
 
   if (q.options) {
@@ -200,7 +209,7 @@ function renderQuestion() {
     });
   }
   updateNextState();
-  setTimeout(() => speak(`${questionText} ${questionHint}`), 300);
+  if (ENABLE_VOICE_ONBOARDING) setTimeout(() => speak(`${questionText} ${questionHint}`), 300);
 }
 
 function renderRankedTopics() {
@@ -286,8 +295,9 @@ function updateNextState() {
   const q = currentQuestion();
   const value = (q.text || q.tags) ? $("customInput").value.trim() : answers[q.key];
   const valueCount = Array.isArray(value) ? value.length : value ? 1 : 0;
-  $("nextButton").disabled = valueCount < (q.min || 1);
-  $("nextButton").innerHTML = step === activeQuestions().length - 1 ? "Create my briefing <span>→</span>" : "Continue <span>→</span>";
+  const emailIsValid = !q.email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+  $("nextButton").disabled = valueCount < (q.min || 1) || !emailIsValid;
+  $("nextButton").innerHTML = step === activeQuestions().length - 1 ? "Start my daily email <span>→</span>" : "Continue <span>→</span>";
 }
 
 function completeSetup() {
@@ -304,7 +314,7 @@ function completeSetup() {
     answers.topics = detailedTopics.length ? detailedTopics : [...(answers.topics || [])];
   }
   localStorage.setItem("newsdj-profile", JSON.stringify(answers));
-  $("listenerName").textContent = `${answers.name || "listener"}.`;
+  $("listenerName").textContent = `${answers.name || "tomorrow"}.`;
   const topicValues = Array.isArray(answers.topics)
     ? answers.topics
     : answers.topics ? [answers.topics] : [];
@@ -312,10 +322,10 @@ function completeSetup() {
   const topics = (answers.topicGroups || []).map((group) => group.mainTopic).join(", ") || topicValues.join(", ");
   $("recordDuration").textContent = "LIVE";
   $("durationDisplay").textContent = "SCANNING";
-  $("profileSummary").textContent = `Your alert wire tracks ${topics || "your priorities"} in the order you chose.`;
-  $("briefingTitle").textContent = "Scanning for useful signals…";
+  $("profileSummary").textContent = `We’ll send ${answers.email || "your inbox"} a concise edition covering ${topics || "your priorities"}. Here is a preview using today’s reporting.`;
+  $("briefingTitle").textContent = "Building today’s email preview…";
   $("todayDate").textContent = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric" }).format(new Date()).toUpperCase();
-  $("transcript").innerHTML = "<p>Scanning today’s reporting against your priorities…</p>";
+  $("transcript").innerHTML = "<p>Scanning today’s reporting against your priorities and removing duplicate stories…</p>";
   $("sourceList").innerHTML = "";
   showView($("briefingView"));
   curateBriefing(answers);
@@ -353,10 +363,10 @@ async function curateBriefing(profile) {
     if (!response.ok) throw new Error("BRIEFING_UNAVAILABLE");
     const briefing = await response.json();
     renderBriefing(briefing);
-    if (autoplayRequested) {
+    if (ENABLE_AUDIO_EXPERIENCE && autoplayRequested) {
       autoplayRequested = false;
       await playBriefing();
-    } else {
+    } else if (ENABLE_VOICE_ONBOARDING) {
       speak(`You are all tuned, ${profile.name}. I curated your first briefing from today's reporting, and it is ready now.`);
     }
   } catch (error) {
@@ -495,8 +505,8 @@ $("retuneButton").addEventListener("click", () => {
   showView($("setupView"));
   renderQuestion();
 });
-$("previewButton").addEventListener("click", playBriefing);
-$("listenButton").addEventListener("click", beginListening);
+if (ENABLE_AUDIO_EXPERIENCE) $("previewButton").addEventListener("click", playBriefing);
+if (ENABLE_VOICE_ONBOARDING) $("listenButton").addEventListener("click", beginListening);
 $("customInput").addEventListener("input", () => {
   const q = currentQuestion();
   answers[q.key] = q.tags
@@ -506,35 +516,35 @@ $("customInput").addEventListener("input", () => {
   updateNextState();
 });
 $("nextButton").addEventListener("click", () => {
-  stopSpokenVoice();
+  if (ENABLE_VOICE_ONBOARDING) stopSpokenVoice();
   if (step < activeQuestions().length - 1) {
     step++;
     renderQuestion();
     return;
   }
   $("nextButton").disabled = true;
-  $("nextButton").innerHTML = 'Creating your briefing <span>→</span>';
+  $("nextButton").innerHTML = 'Saving your edition <span>→</span>';
   try {
     completeSetup();
   } catch (error) {
     console.error("Could not complete onboarding", error);
     $("nextButton").disabled = false;
-    $("nextButton").innerHTML = 'Create my briefing <span>→</span>';
+    $("nextButton").innerHTML = 'Start my daily email <span>→</span>';
     toast("I couldn’t save that profile. Please try again.");
   }
 });
-$("playButton").addEventListener("click", playBriefing);
+if (ENABLE_AUDIO_EXPERIENCE) $("playButton").addEventListener("click", playBriefing);
 $("editButton").addEventListener("click", () => { step = 0; answers = JSON.parse(localStorage.getItem("newsdj-profile") || "{}"); showView($("setupView")); renderQuestion(); });
 
 const saved = localStorage.getItem("newsdj-profile");
 if (saved) {
   answers = JSON.parse(saved);
-  $("startButton").firstChild.textContent = "Open my briefing ";
+  $("startButton").firstChild.textContent = "Open my daily brief ";
   $("retuneButton").classList.remove("hidden");
   $("startButton").onclick = (event) => { event.stopImmediatePropagation(); completeSetup(); };
 }
 
-if (autoplayRequested) {
+if (ENABLE_AUDIO_EXPERIENCE && autoplayRequested) {
   answers = saved ? JSON.parse(saved) : {
     topicMode: "Enter and rank my topics",
     topics: ["Artificial intelligence business strategy", "New York Mets", "Media and streaming", "Financial markets"],

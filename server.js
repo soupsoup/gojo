@@ -214,22 +214,22 @@ async function generateModelBriefing(profile) {
 
   const prompt = `You are the editorial engine for GoJo. Today is ${today}.
 
-Create a personalized rapid audio alert rundown for this listener profile:
+Create a personalized daily email briefing for this reader profile:
 ${JSON.stringify(profile)}
 
-Treat every selected subtopic as an intentional editorial search query. The topicGroups array contains the listener's three main topics in requested order. Search reporting and official schedules published or materially updated within the last twenty-four hours. Spread alerts across all three groups before adding more from one group. Aim for two to four useful alerts per group when reliable information exists.
+Treat every selected subtopic as an intentional editorial search query. The topicGroups array contains the reader's three main topics in requested order. Search reporting and official schedules published or materially updated within the last twenty-four hours. Spread stories across all three groups before adding more from one group. Aim for two to four useful stories per group when reliable information exists.
 
 Deduplicate by underlying event, not by headline or source. If one story matches multiple main topics or subtopics, include it only once in the earliest relevant position. Multiple outlets reporting the same announcement, transaction, game, filing, release, or decision are still one alert. Use additional reporting to verify or enrich that single alert, never to create a second version of it.
 
-This is an alert feed, not a podcast and not an essay. Return one dated opening followed by 6 to 12 alerts. Each alert must describe one specific reported story in one or two short sentences and contain 12 to 45 words. Most should be 18 to 32 words. Include the central event plus one concrete supporting detail such as a number, person, date, opponent, product, decision, or immediate consequence. Every alert must be a complete factual statement with a subject and verb. A topic label or category-level trend such as “AI infrastructure spending is rising” is not a story and is forbidden.
+This is a concise morning email, not a podcast and not an essay. Return one dated opening followed by 6 to 12 stories. Each item must describe one specific reported story in one or two short sentences and contain 20 to 60 words. Include the central event plus at least one concrete supporting detail such as a number, person, date, opponent, product, decision, or immediate consequence. Every item must be a complete factual statement with a subject and verb. A topic label or category-level trend such as “AI infrastructure spending is rising” is not a story and is forbidden.
 
-Name the reporting source inside every spoken alert. Use natural attribution such as “According to Reuters,” “Reuters reports,” “The Mets announced,” or “MLB’s schedule lists.” The named source must directly support that exact alert. Do not cite aggregators when original reporting, an official announcement, filing, schedule, or primary document is available. Put the matching direct story or document URL in the sources array; do not return section pages, homepages, search pages, or invented URLs.
+Name the reporting source inside every story. Use natural attribution such as “According to Reuters,” “Reuters reports,” “The Mets announced,” or “MLB’s schedule lists.” The named source must directly support that exact item. Do not cite aggregators when original reporting, an official announcement, filing, schedule, or primary document is available. Put the matching direct story or document URL in the sources array; do not return section pages, homepages, search pages, or invented URLs.
 
 Never put headings, standalone section labels, “Sources,” or empty strings in the sections array. Prefer concrete developments, decisions, scores, schedules, deadlines, countdowns, filings, releases, and verified status updates. A useful alert may say that nothing changed, for example: “According to the Mets’ transaction log, the team made no roster moves today,” but only when that absence is verified from a current authoritative source. Another valid alert is: “MLB’s schedule lists the Mets against the Dodgers today at 3 p.m. Eastern, with Senga scheduled to start.”
 
 Never stretch a headline into commentary. Do not explain why something matters unless a short clause is essential to understanding the fact. Do not speculate, recap the alert, preview later items, summarize at the end, or use empty phrases such as “what happens next remains to be seen.” Do not add an outro. Do not mention runtime, duration, podcast length, or how many minutes the listener is getting.
 
-The opening must say only the listener's name and today's date, for example: “Anthony, today is Thursday, July sixteenth.” Begin the first alert immediately afterward. A brief subject cue is allowed only when it adds orientation. Do not speak URLs or use parenthetical citations; weave the source name naturally into the sentence. Do not include markdown.
+The opening must say only the reader's name and today's date, for example: “Anthony, today is Thursday, July sixteenth.” Begin the first story immediately afterward. A brief subject cue is allowed only when it adds orientation. Do not print raw URLs or use parenthetical citations; weave the source name naturally into the sentence. Do not include markdown.
 
 Use at least two independent credible sources for disputed, political, medical, financial, or developing claims. Prefer original reporting, official documents, league and team schedules, filings, and primary sources. Exclude vague, promotional, sensational, or poorly sourced items.
 
@@ -302,12 +302,12 @@ Every factual claim must be supported by sources you consulted. Return a concise
   const alertIsInvalid = (section, index) => {
     if (index === 0) return !section.trim();
     const wordCount = section.trim().split(/\s+/).filter(Boolean).length;
-    return wordCount < 10 || wordCount > 50 || /^sources?\s*:?$/i.test(section.trim());
+    return wordCount < 18 || wordCount > 65 || /^sources?\s*:?$/i.test(section.trim());
   };
   if (result.briefing.sections.some(alertIsInvalid)) {
     result = await requestBriefing(`${prompt}
 
-The previous draft violated the story-alert format. Rewrite every item after the date as a specific reported story containing 12 to 45 words. Name the source naturally inside every alert and add one concrete supporting detail. Delete category-level trends, headings, topic labels, “Sources,” empty strings, commentary, repetition, previews, recaps, and filler. Keep the dated opening and 6 to 12 alerts, with no outro.
+The previous draft violated the daily-email format. Rewrite every item after the date as a specific reported story containing 20 to 60 words. Name the source naturally inside every item and add at least one concrete supporting detail. Delete category-level trends, headings, topic labels, “Sources,” empty strings, commentary, repetition, previews, recaps, and filler. Keep the dated opening and 6 to 12 stories, with no outro.
 
 Previous draft:
 ${result.raw}`);
@@ -321,7 +321,7 @@ ${result.raw}`);
     briefing.sections.unshift(`${name}, today is ${today}.`);
     briefing.sections = briefing.sections.slice(0, 13);
   }
-  if (/\btoday is\b/i.test(briefing.title)) briefing.title = "Your alerts, right now";
+  if (/\btoday is\b/i.test(briefing.title)) briefing.title = "Your morning edition";
   if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");
 
   if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");

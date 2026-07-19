@@ -3,3 +3,8 @@
 .git
 .vercel
 node_modules
+outputs
+scripts
+*.mp4
+*.mp3
+runway-presenter-*.png

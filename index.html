@@ -4,8 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#f2eddf" />
-    <meta name="description" content="GoJo — your personal news broadcast, tuned to your time." />
-    <title>GoJo — Your morning, edited.</title>
+    <meta name="description" content="GoJo — a concise daily news email built around what you care about." />
+    <title>GoJo — Your news, edited daily.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap" rel="stylesheet" />
@@ -18,22 +18,22 @@
         <span class="brand-mark"><i></i><i></i><i></i></span>
         <span>GO<span>JO</span></span>
       </a>
-      <div class="on-air"><span></span> PERSONAL NEWSWIRE</div>
+      <div class="on-air"><span></span> DAILY EDITION</div>
     </header>
 
     <main>
       <section class="hero" id="welcomeView">
-        <div class="eyebrow">Edition No. 001 · Built around you</div>
-        <h1>Your world,<br /><em>signaled.</em></h1>
-        <p class="dek">Fast, verified alerts about what matters to you. One fact at a time.</p>
+        <div class="eyebrow">A personal morning paper · Built around you</div>
+        <h1>Your news,<br /><em>edited.</em></h1>
+        <p class="dek">Choose what matters to you. GoJo finds the useful stories, removes the repetition, and sends one sourced summary to your inbox each morning.</p>
         <div class="hero-actions">
-          <button class="primary-button" id="startButton">Tune my alerts <span>→</span></button>
+          <button class="primary-button" id="startButton">Build my daily brief <span>→</span></button>
           <button class="text-button hidden" id="retuneButton">↗ Retune preferences</button>
-          <button class="text-button" id="previewButton"><span class="play-mini">▶</span> Hear a sample</button>
+          <button class="text-button hidden" id="previewButton"><span class="play-mini">▶</span> Hear a sample</button>
         </div>
         <div class="proof-line">
-          <span>NOW</span>
-          <p>More of your interests. Less filler. Only the latest useful signal.</p>
+          <span>AM</span>
+          <p>One useful edition. Your priorities, current reporting, direct sources.</p>
         </div>
       </section>
 
@@ -46,11 +46,11 @@
           <div class="frequency" aria-hidden="true">
             <span>88</span><i></i><span>92</span><i></i><span>96</span><i></i><span>100</span><i></i><span>104</span><i></i><span>108</span>
           </div>
-          <p>Answer aloud or tap an option. You can change everything later.</p>
+          <p>Choose your interests and tell us where to send your morning edition. You can change everything later.</p>
         </aside>
 
         <div class="setup-stage">
-          <div class="voice-orb" id="voiceOrb" aria-hidden="true">
+          <div class="voice-orb email-orb" id="voiceOrb" aria-hidden="true">
             <div class="orb-center"></div>
             <span></span><span></span><span></span><span></span>
           </div>
@@ -65,7 +65,7 @@
             <div class="ranked-topics hidden" id="rankedTopics" aria-live="polite" aria-label="Briefing topic order"></div>
           </div>
           <div class="setup-controls">
-            <button class="listen-button" id="listenButton" aria-label="Answer with your voice"><span class="mic-icon"></span><b>Answer aloud</b></button>
+            <button class="listen-button hidden" id="listenButton" aria-label="Answer with your voice"><span class="mic-icon"></span><b>Answer aloud</b></button>
             <button class="next-button" id="nextButton" disabled>Continue <span>→</span></button>
           </div>
         </div>
@@ -73,36 +73,36 @@
 
       <section class="briefing hidden" id="briefingView">
         <div class="briefing-copy">
-          <div class="eyebrow">Your wire is tuned</div>
-          <h1>Your signal,<br /><em id="listenerName">listener.</em></h1>
-          <p class="dek" id="profileSummary">Your personal alerts are ready.</p>
+          <div class="eyebrow">Your morning edition is set</div>
+          <h1>See you<br /><em id="listenerName">tomorrow.</em></h1>
+          <p class="dek" id="profileSummary">Your daily email is tuned to your priorities.</p>
           <button class="text-button edit-button" id="editButton">↗ Retune my preferences</button>
         </div>
 
-        <article class="player-card">
+        <article class="player-card email-card">
           <div class="card-topline">
-            <span>THE GOJO WIRE</span>
+            <span>GOJO / MORNING EDITION</span>
             <span id="todayDate"></span>
           </div>
-          <div class="record">
+          <div class="record hidden" aria-hidden="true">
             <div class="record-label">
               <small>GOJO</small>
               <strong id="recordDuration">LIVE</strong>
               <small>ALERTS</small>
             </div>
           </div>
-          <div class="now-playing">
-            <span>Latest signals</span>
+          <div class="now-playing email-heading">
+            <span>A preview of today’s email</span>
             <h2 id="briefingTitle">What changed across your world</h2>
           </div>
-          <div class="waveform" id="waveform" aria-hidden="true"></div>
-          <div class="player-controls">
+          <div class="waveform hidden" id="waveform" aria-hidden="true"></div>
+          <div class="player-controls hidden">
             <span id="elapsed">ALERT FEED</span>
             <button id="playButton" aria-label="Play alerts">▶</button>
             <span id="durationDisplay">READY</span>
           </div>
-          <details>
-            <summary>Read today’s alerts <span>+</span></summary>
+          <details open>
+            <summary>Today’s briefing <span>↓</span></summary>
             <div class="transcript-copy" id="transcript"></div>
             <div class="source-list" id="sourceList"></div>
           </details>
@@ -111,8 +111,8 @@
     </main>
 
     <footer>
-      <span>GoJo / Prototype 01</span>
-      <span>Facts first. Sources attached.</span>
+      <span>GoJo / Daily email</span>
+      <span>Concise reporting. Direct sources.</span>
     </footer>
     <div class="toast" id="toast" role="status"></div>
     <script src="app.js"></script>
