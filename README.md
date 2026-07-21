@@ -1,8 +1,8 @@
 # GoJo
 
-GoJo turns a listener’s interests into a fast, sourced audio alert wire. During onboarding, the listener selects three main topics, chooses up to five subtopics within each, and ranks the main topics in the order they want to hear them. GoJo researches current reporting, writes compact factual alerts, and narrates each item with a rotating cast of ElevenLabs voices.
+GoJo turns a reader’s interests into a sourced daily email and a produced personal audio newscast. The email is concise and source-forward. The audio is not a readout: GoJo writes a separate spoken script, performs it with a host voice, and mixes it with an original music bed for listening in the car or on headphones.
 
-The current product is a web prototype built around short, useful updates rather than a fixed runtime. It also includes an email proof of concept containing the written alerts and a link to play the same rundown online.
+During onboarding, the reader selects three main topics, chooses up to five subtopics within each, and ranks the main topics in editorial order.
 
 ## What it does
 
@@ -14,7 +14,11 @@ The current product is a web prototype built around short, useful updates rather
 - Source provenance taken from the search tool, with URLs checked before an alert is published
 - Event-level deduplication across overlapping main topics, subtopics, headlines, and publishers
 - Hard limits that prevent commentary and filler from expanding each alert
-- Multi-voice ElevenLabs narration with a primary host and alternating correspondents
+- A separately written, host-led audio newscast with natural segues
+- ElevenLabs host performance plus an original generated or built-in music bed
+- FFmpeg voice ducking, mixing, and podcast-style loudness mastering
+- Scheduled Resend delivery with the produced MP3 attached
+- Text-only email fallback if audio production is temporarily unavailable
 - Source links for the reporting used in each briefing
 - Responsive web player with transcript and source display
 - Email briefing proof of concept at `/email-preview`
@@ -26,8 +30,9 @@ The current product is a web prototype built around short, useful updates rather
 3. The listener ranks the three main topics.
 4. The browser sends the ordered profile to `POST /api/briefing`.
 5. The server asks OpenAI to research recent reporting and return a sourced, structured script.
-6. The browser sends the script’s sections to `POST /api/tts`.
-7. ElevenLabs generates one continuous audio rundown using different voices for the date stamp and alert items.
+6. A second editorial pass rewrites the verified facts as a spoken newscast with transitions.
+7. ElevenLabs performs the host track; GoJo mixes it with an original music bed and masters the MP3.
+8. Resend delivers the attributed email with the produced MP3 attached.
 
 If a selected topic does not have a consequential, reliably sourced development, the editorial prompt instructs the model to skip it instead of forcing a weak story.
 
@@ -36,7 +41,9 @@ If a selected topic does not have a consequential, reliably sourced development,
 - Vanilla HTML, CSS, and JavaScript
 - Node.js HTTP server
 - OpenAI Responses API with web search
-- ElevenLabs Text to Dialogue and Text to Speech APIs
+- ElevenLabs Text to Speech and optional Music APIs
+- FFmpeg, bundled through `ffmpeg-static`
+- Resend email API
 - Vercel Functions and static hosting
 
 No frontend framework or build step is required.
@@ -72,7 +79,7 @@ git clone https://github.com/soupsoup/gojo.git
 cd gojo
 ```
 
-The project currently has no third-party npm packages, so there is no required dependency-install step. If dependencies are added later, run `npm install` before starting the server.
+Install dependencies with `npm install` before starting the server.
 
 Create a local environment file:
 
@@ -86,6 +93,10 @@ Open `.env` and configure at least:
 OPENAI_API_KEY=your_openai_api_key
 OPENAI_SUMMARY_MODEL=gpt-5.6-terra
 ELEVENLABS_API_KEY=your_elevenlabs_api_key
+RESEND_API_KEY=your_resend_api_key
+GOJO_FROM_EMAIL=GoJo <briefing@your-verified-domain.com>
+CRON_SECRET=a-long-random-secret
+GOJO_DAILY_PROFILE_JSON={"name":"Anthony","email":"you@example.com","topicGroups":[...]}
 ```
 
 The application code defaults to `gpt-5.6-terra` when `OPENAI_SUMMARY_MODEL` is absent. The example environment file may specify another model for lower-cost development, so set the variable explicitly when you want to test the production GPT-5.6 workflow.
@@ -120,6 +131,13 @@ If the server reports that a voice or briefing is unavailable, confirm that the 
 | `ELEVENLABS_VOICE_ID_3` | No | Second correspondent voice. |
 | `ELEVENLABS_VOICE_ID_4` | No | Third correspondent voice. |
 | `ELEVENLABS_MODEL_ID` | No | Model used for standard single-voice prompts. |
+| `ELEVENLABS_NEWSCAST_MODEL_ID` | No | Model used for the produced host performance. |
+| `ELEVENLABS_NEWSCAST_VOICE_ID` | No | Dedicated newscast anchor voice, independent from onboarding speech. |
+| `RESEND_API_KEY` | For email | Sends the daily email and MP3 attachment. |
+| `GOJO_FROM_EMAIL` | For email | Sender on a domain verified with Resend. |
+| `CRON_SECRET` | For delivery | Protects the scheduled delivery endpoint. |
+| `GOJO_DAILY_PROFILE_JSON` | For delivery | Initial test-reader profile until accounts use a database. |
+| `FFMPEG_PATH` | No | Optional path override; bundled FFmpeg is used by default. |
 | `PORT` | No | Local server port; defaults to `4173`. |
 
 The app includes default ElevenLabs voice IDs, but explicitly configuring the four voice IDs is recommended so the lineup remains under your control.
@@ -134,6 +152,8 @@ Never commit `.env`. It is excluded by `.gitignore`.
 | `/email-preview` | Browser-rendered email proof of concept |
 | `POST /api/briefing` | Researches and creates a personalized briefing |
 | `POST /api/tts` | Generates single-voice or multi-voice audio |
+| `POST /api/newscast` | Writes and returns a produced personal-newscast MP3 |
+| `GET /api/daily-delivery` | Researches, produces, and emails a fresh daily edition |
 
 The email proof-of-concept audio link can launch the locked demo edition with:
 
@@ -146,7 +166,7 @@ The email proof-of-concept audio link can launch the locked demo edition with:
 The repository includes `vercel.json`; no separate build command is required.
 
 1. Import the private GitHub repository into Vercel and grant Vercel access to it.
-2. Add `OPENAI_API_KEY`, `OPENAI_SUMMARY_MODEL=gpt-5.6-terra`, and `ELEVENLABS_API_KEY` in **Project Settings → Environment Variables**.
+2. Add the OpenAI, ElevenLabs, Resend, sender, cron secret, and daily profile variables listed above in **Project Settings → Environment Variables**.
 3. Add any custom ElevenLabs voice IDs you want to keep consistent across environments.
 4. Apply the variables to Production, Preview, and Development as appropriate.
 5. Deploy the project.
@@ -168,6 +188,8 @@ Because API credentials are read only on the server, they should be configured a
 ├── api/[...path].js          # Vercel function entry point
 ├── app.js                    # Onboarding, profile, player, and browser logic
 ├── server.js                 # API routes, news curation, and voice generation
+├── audio-production.js       # Spoken script, host, music, mixing, and mastering
+├── email-delivery.js         # Responsive email renderer and Resend delivery
 ├── index.html                # Main application
 ├── styles.css                # Application design system and responsive styles
 ├── email-preview.html        # Email briefing proof of concept
@@ -179,6 +201,6 @@ Because API credentials are read only on the server, they should be configured a
 ## Current prototype constraints
 
 - Listener profiles are stored in browser `localStorage`; there is no account system or database yet.
-- Scheduled email delivery is represented by a proof of concept and is not yet an automated production workflow.
+- The scheduled job supports a configured test reader; a subscriber database and account authentication are still required for a multi-user launch.
 - Alert volume depends on the number of useful, verified developments available.
 - Freeform topics, tone selection, depth selection, and delivery-time controls remain in the code behind disabled feature flags for possible future use.

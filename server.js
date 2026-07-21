@@ -2,6 +2,8 @@ const http = require("node:http");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
+const { produceNewscast } = require("./audio-production");
+const { sendEdition } = require("./email-delivery");
 
 const envPath = path.join(__dirname, ".env");
 if (fs.existsSync(envPath)) {
@@ -25,7 +27,15 @@ const mimeTypes = {
 };
 
 function json(res, status, payload) {
-  res.writeHead(status, { "Content-Type": "application/json; charset=utf-8" });
+  res.writeHead(status, {
+    "Content-Type": "application/json; charset=utf-8",
+    "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
+    "CDN-Cache-Control": "no-store",
+    "Vercel-CDN-Cache-Control": "no-store",
+    "Pragma": "no-cache",
+    "Expires": "0",
+    "X-GoJo-Generated-At": new Date().toISOString()
+  });
   res.end(JSON.stringify(payload));
 }
 
@@ -192,12 +202,15 @@ async function generateModelBriefing(profile) {
   const today = new Intl.DateTimeFormat("en-US", {
     timeZone: "America/New_York", weekday: "long", year: "numeric", month: "long", day: "numeric"
   }).format(new Date());
+  const editorialProfile = { ...profile };
+  delete editorialProfile.email;
+  delete editorialProfile.freshnessNonce;
   const schema = {
     type: "object",
     properties: {
       title: { type: "string" },
       alert_count: { type: "integer" },
-      sections: { type: "array", minItems: 7, maxItems: 13, items: { type: "string", minLength: 20, maxLength: 350 } },
+      sections: { type: "array", minItems: 6, maxItems: 12, items: { type: "string", minLength: 20, maxLength: 260 } },
       sources: {
         type: "array", minItems: 2, maxItems: 20,
         items: {
@@ -215,21 +228,21 @@ async function generateModelBriefing(profile) {
   const prompt = `You are the editorial engine for GoJo. Today is ${today}.
 
 Create a personalized daily email briefing for this reader profile:
-${JSON.stringify(profile)}
+${JSON.stringify(editorialProfile)}
 
 Treat every selected subtopic as an intentional editorial search query. The topicGroups array contains the reader's three main topics in requested order. Search reporting and official schedules published or materially updated within the last twenty-four hours. Spread stories across all three groups before adding more from one group. Aim for two to four useful stories per group when reliable information exists.
 
 Deduplicate by underlying event, not by headline or source. If one story matches multiple main topics or subtopics, include it only once in the earliest relevant position. Multiple outlets reporting the same announcement, transaction, game, filing, release, or decision are still one alert. Use additional reporting to verify or enrich that single alert, never to create a second version of it.
 
-This is a concise morning email, not a podcast and not an essay. Return one dated opening followed by 6 to 12 stories. Each item must describe one specific reported story in one or two short sentences and contain 20 to 60 words. Include the central event plus at least one concrete supporting detail such as a number, person, date, opponent, product, decision, or immediate consequence. Every item must be a complete factual statement with a subject and verb. A topic label or category-level trend such as “AI infrastructure spending is rising” is not a story and is forbidden.
+This is a concise morning email, not a podcast and not an essay. Return exactly 6 to 12 alerts and nothing else; aim for 9 distinct alerts when reliable reporting supports them. Do not write an introduction, greeting, date line, recap, conclusion, or outro. Each alert must communicate one specific reported fact, usually in one sentence, and must never exceed 40 words. Include the central event and one concrete detail only when that detail helps state the fact. Every alert must be a complete factual statement with a subject and verb. A topic label or category-level trend such as “AI infrastructure spending is rising” is not a story and is forbidden.
 
 Name the reporting source inside every story. Use natural attribution such as “According to Reuters,” “Reuters reports,” “The Mets announced,” or “MLB’s schedule lists.” The named source must directly support that exact item. Do not cite aggregators when original reporting, an official announcement, filing, schedule, or primary document is available. Put the matching direct story or document URL in the sources array; do not return section pages, homepages, search pages, or invented URLs.
 
 Never put headings, standalone section labels, “Sources,” or empty strings in the sections array. Prefer concrete developments, decisions, scores, schedules, deadlines, countdowns, filings, releases, and verified status updates. A useful alert may say that nothing changed, for example: “According to the Mets’ transaction log, the team made no roster moves today,” but only when that absence is verified from a current authoritative source. Another valid alert is: “MLB’s schedule lists the Mets against the Dodgers today at 3 p.m. Eastern, with Senga scheduled to start.”
 
-Never stretch a headline into commentary. Do not explain why something matters unless a short clause is essential to understanding the fact. Do not speculate, recap the alert, preview later items, summarize at the end, or use empty phrases such as “what happens next remains to be seen.” Do not add an outro. Do not mention runtime, duration, podcast length, or how many minutes the listener is getting.
+Never stretch a headline into commentary. Do not explain why something matters. Do not speculate, add analysis, recap an alert, preview later items, summarize at the end, or use empty phrases such as “what happens next remains to be seen.” Do not mention runtime, duration, podcast length, or how many minutes the reader is getting.
 
-The opening must say only the reader's name and today's date, for example: “Anthony, today is Thursday, July sixteenth.” Begin the first story immediately afterward. A brief subject cue is allowed only when it adds orientation. Do not print raw URLs or use parenthetical citations; weave the source name naturally into the sentence. Do not include markdown.
+Begin immediately with the first alert. Do not print raw URLs or use parenthetical citations; weave the source name naturally into the sentence. Do not include markdown.
 
 Use at least two independent credible sources for disputed, political, medical, financial, or developing claims. Prefer original reporting, official documents, league and team schedules, filings, and primary sources. Exclude vague, promotional, sensational, or poorly sourced items.
 
@@ -285,10 +298,13 @@ Every factual claim must be supported by sources you consulted. Return a concise
     return Promise.all(sources.map(async (source) => {
       try {
         const response = await fetch(source.url, {
-          method: "HEAD",
+          method: "GET",
           redirect: "follow",
           signal: AbortSignal.timeout(5_000),
-          headers: { "User-Agent": "GoJo/0.1 source verifier" }
+          headers: {
+            "User-Agent": "GoJo/0.1 source verifier",
+            "Range": "bytes=0-1023"
+          }
         });
         return { source, valid: response.status !== 404 && response.status !== 410 };
       } catch {
@@ -299,15 +315,19 @@ Every factual claim must be supported by sources you consulted. Return a concise
 
   let result = await requestBriefing(prompt);
   let consultedSources = [...result.consultedSources];
-  const alertIsInvalid = (section, index) => {
-    if (index === 0) return !section.trim();
+  const alertIsInvalid = (section) => {
     const wordCount = section.trim().split(/\s+/).filter(Boolean).length;
-    return wordCount < 18 || wordCount > 65 || /^sources?\s*:?$/i.test(section.trim());
+    return wordCount < 8
+      || wordCount > 40
+      || /^sources?\s*:?$/i.test(section.trim())
+      || /\b(today is|good morning|welcome to|why it matters|in summary|to recap|that(?:'s| is) your gojo)\b/i.test(section);
   };
-  if (result.briefing.sections.some(alertIsInvalid)) {
+  if (result.briefing.sections.length < 6
+    || result.briefing.sections.length > 12
+    || result.briefing.sections.some(alertIsInvalid)) {
     result = await requestBriefing(`${prompt}
 
-The previous draft violated the daily-email format. Rewrite every item after the date as a specific reported story containing 20 to 60 words. Name the source naturally inside every item and add at least one concrete supporting detail. Delete category-level trends, headings, topic labels, “Sources,” empty strings, commentary, repetition, previews, recaps, and filler. Keep the dated opening and 6 to 12 stories, with no outro.
+The previous draft violated the alert format. Return only 6 to 12 alerts. Each alert must state one specific reported fact, usually in one sentence, with a hard maximum of 40 words. Name the source naturally. Delete introductions, greetings, dates, headings, topic labels, “Sources,” empty strings, commentary, “why it matters,” repetition, previews, recaps, conclusions, and filler.
 
 Previous draft:
 ${result.raw}`);
@@ -316,34 +336,22 @@ ${result.raw}`);
   let briefing = result.briefing;
   briefing.sections = briefing.sections.map((section) =>
     section.replace(/\s*\((?:source:\s*)?[^()]{2,80}\)\s*$/i, "").trim());
-  if (!/\btoday is\b/i.test(briefing.sections[0] || "")) {
-    const name = String(profile.name || "there").trim().slice(0, 40);
-    briefing.sections.unshift(`${name}, today is ${today}.`);
-    briefing.sections = briefing.sections.slice(0, 13);
+  if (briefing.sections.length < 6 || briefing.sections.length > 12 || briefing.sections.some(alertIsInvalid)) {
+    throw new Error("One or more alerts failed the concise factual-statement format");
   }
-  if (/\btoday is\b/i.test(briefing.title)) briefing.title = "Your morning edition";
-  if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");
-
-  if (briefing.sections.some(alertIsInvalid)) throw new Error("One or more alerts failed the factual-statement format");
-  const sourceCandidates = consultedSources.length ? consultedSources : briefing.sources;
+  const sourceCandidates = [...briefing.sources, ...consultedSources]
+    .filter((source, index, all) => source?.url
+      && all.findIndex((candidate) => candidate?.url === source.url) === index);
   const sourceChecks = await verifySources(sourceCandidates);
-  briefing.sources = sourceChecks.filter((check) => check.valid).map((check) => check.source)
+  const verifiedSources = sourceChecks.filter((check) => check.valid).map((check) => check.source);
+  const usableSources = verifiedSources.length >= 2 ? verifiedSources : sourceCandidates;
+  briefing.sources = usableSources
     .filter((source, index, all) => /^https?:\/\//i.test(source.url)
       && all.findIndex((candidate) => candidate.url === source.url) === index)
     .slice(0, 20);
   if (briefing.sources.length < 2) throw new Error("Briefing returned insufficient sources");
-  const publisherAliases = briefing.sources.flatMap((source) => {
-    let hostAlias = "";
-    try {
-      const parts = new URL(source.url).hostname.replace(/^www\./, "").split(".");
-      hostAlias = parts.length > 1 ? parts[parts.length - 2] : parts[0];
-    } catch {}
-    const labelAlias = source.label.split(/\s+(?:on|—|-)\s+/i)[0].split(/\s+/).slice(0, 2).join("");
-    return [hostAlias, labelAlias].map((alias) => alias.toLowerCase().replace(/[^a-z0-9]/g, "")).filter(Boolean);
-  });
-  const sourcedAlerts = briefing.sections.slice(1).filter((alert) => {
-    const normalizedAlert = alert.toLowerCase().replace(/[^a-z0-9]/g, "");
-    return publisherAliases.some((alias) => alias.length >= 4 && normalizedAlert.includes(alias));
+  const sourcedAlerts = briefing.sections.filter((alert) => {
+    return /\baccording to\b|\b(reports?|says|said|announced|confirmed|lists|stated)\b/i.test(alert);
   });
   const duplicateStopWords = new Set([
     "according", "reports", "reported", "reporting", "says", "said", "announced", "confirmed",
@@ -367,9 +375,10 @@ ${result.raw}`);
       uniqueTokenSets.push(tokens);
     }
   }
-  if (uniqueAlerts.length < 3) throw new Error("Briefing returned too few distinct alerts with verified source attribution");
-  briefing.sections = [briefing.sections[0], ...uniqueAlerts];
-  briefing.alert_count = uniqueAlerts.length;
+  if (uniqueAlerts.length < 6) throw new Error("Briefing returned fewer than six distinct alerts with verified source attribution");
+  briefing.sections = uniqueAlerts.slice(0, 12);
+  briefing.alert_count = briefing.sections.length;
+  briefing.generated_at = new Date().toISOString();
   return briefing;
 }
 
@@ -412,34 +421,79 @@ async function handleBriefing(req, res) {
     for (let queryIndex = 0; queryIndex < results.length; queryIndex++) {
       const result = results[queryIndex];
       if (result.status !== "fulfilled") continue;
-      const candidate = result.value.find((item) => {
-        const fingerprint = item.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 80);
-        if (seen.has(fingerprint)) return false;
+      for (const candidate of result.value) {
+        const fingerprint = candidate.title.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 80);
+        if (seen.has(fingerprint)) continue;
         seen.add(fingerprint);
-        return true;
-      });
-      if (candidate) stories.push(candidate);
-      if (stories.length === 4) break;
+        stories.push(candidate);
+        if (stories.length === 12) break;
+      }
+      if (stories.length === 12) break;
     }
-    if (stories.length < 2) throw new Error("Not enough current stories returned");
+    if (stories.length < 6) throw new Error("Fewer than six current stories returned");
 
-    const name = String(body.name || "there").trim().slice(0, 40);
-    const spokenDate = new Intl.DateTimeFormat("en-US", {
-      weekday: "long", month: "long", day: "numeric"
-    }).format(new Date());
-    const sections = [
-      `${name}, today is ${spokenDate}.`,
-      ...stories.map((story) => `${story.preference}: ${story.title.replace(/[.!?]+$/, "")}.`)
-    ];
+    const sections = stories.map((story) => {
+      const alert = `${story.source} reports ${story.title.replace(/[.!?]+$/, "")}.`;
+      return alert.split(/\s+/).slice(0, 40).join(" ");
+    });
     json(res, 200, {
       title: stories.map((story) => story.preference).slice(0, 2).join(" + ") + ", right now",
       alert_count: stories.length,
       sections,
+      generated_at: new Date().toISOString(),
       sources: stories.map((story) => ({ label: `${story.source} — ${story.title}`, url: story.url, publishedAt: story.publishedAt }))
     });
   } catch (error) {
     console.error(error);
     json(res, 502, { error: "Could not curate a live briefing", code: "BRIEFING_UNAVAILABLE" });
+  }
+}
+
+async function handleNewscast(req, res) {
+  try {
+    const body = await readBody(req);
+    if (!body.briefing?.sections?.length) return json(res, 400, { error: "A current briefing is required" });
+    const result = await produceNewscast({ briefing: body.briefing, profile: body.profile || {} });
+    res.writeHead(200, {
+      "Content-Type": "audio/mpeg",
+      "Content-Disposition": `attachment; filename="gojo-${new Date().toISOString().slice(0, 10)}.mp3"`,
+      "Cache-Control": "no-store",
+      "X-GoJo-Production": result.production,
+      "X-GoJo-Newscast-Id": result.id
+    });
+    res.end(result.audio);
+  } catch (error) {
+    console.error("Newscast unavailable:", error.message);
+    json(res, 502, { error: "The produced audio edition is temporarily unavailable", code: "NEWSCAST_UNAVAILABLE" });
+  }
+}
+
+async function handleDailyDelivery(req, res) {
+  const expectedSecret = process.env.CRON_SECRET || process.env.GOJO_DELIVERY_SECRET;
+  if (!expectedSecret) return json(res, 503, { error: "Daily delivery is not configured" });
+  if (expectedSecret && req.headers.authorization !== `Bearer ${expectedSecret}`) {
+    return json(res, 401, { error: "Unauthorized" });
+  }
+  try {
+    const supplied = req.method === "POST" ? await readBody(req) : {};
+    const configured = process.env.GOJO_DAILY_PROFILE_JSON ? JSON.parse(process.env.GOJO_DAILY_PROFILE_JSON) : {};
+    const profile = supplied.profile || configured.profile || configured;
+    const to = supplied.to || profile.email || process.env.GOJO_TEST_RECIPIENTS?.split(",").map((item) => item.trim()).filter(Boolean);
+    if (!to || (Array.isArray(to) && !to.length)) return json(res, 400, { error: "No delivery recipient is configured" });
+    const briefing = await generateModelBriefing({ ...profile, freshnessNonce: crypto.randomUUID() });
+    let audio;
+    let audioStatus = "attached";
+    try {
+      audio = (await produceNewscast({ briefing, profile })).audio;
+    } catch (error) {
+      audioStatus = "text-only-fallback";
+      console.error("Daily audio unavailable; sending text edition:", error.message);
+    }
+    const delivery = await sendEdition({ to, profile, briefing, audio });
+    json(res, 200, { ok: true, delivery_id: delivery.id, generated_at: briefing.generated_at, audio: audioStatus });
+  } catch (error) {
+    console.error("Daily delivery unavailable:", error.message);
+    json(res, 502, { error: "Daily edition could not be delivered", code: "DELIVERY_UNAVAILABLE" });
   }
 }
 
@@ -457,8 +511,11 @@ function serveStatic(req, res) {
 }
 
 async function handler(req, res) {
-  if (req.method === "POST" && req.url === "/api/tts") return handleTts(req, res);
-  if (req.method === "POST" && req.url === "/api/briefing") return handleBriefing(req, res);
+  const pathname = new URL(req.url, `http://${req.headers.host || "localhost"}`).pathname;
+  if (req.method === "POST" && pathname === "/api/tts") return handleTts(req, res);
+  if (req.method === "POST" && pathname === "/api/briefing") return handleBriefing(req, res);
+  if (req.method === "POST" && pathname === "/api/newscast") return handleNewscast(req, res);
+  if ((req.method === "GET" || req.method === "POST") && pathname === "/api/daily-delivery") return handleDailyDelivery(req, res);
   if (req.method === "GET") return serveStatic(req, res);
   json(res, 405, { error: "Method not allowed" });
 }

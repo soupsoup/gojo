@@ -22,6 +22,7 @@ const ENABLE_DELIVERY_SETTINGS = false;
 // Keep the audio product and voice onboarding code available for a later
 // phase, while the current release focuses on signup and daily email.
 const ENABLE_AUDIO_EXPERIENCE = false;
+const ENABLE_PRODUCED_NEWSCAST = true;
 const ENABLE_VOICE_ONBOARDING = false;
 
 const subtopicQuestions = [0, 1, 2].map((topicIndex) => ({
@@ -69,6 +70,7 @@ const todayBriefing = {
 
 let activeBriefingScript = todayBriefing.sections.join(" ").replace("{{name}}", "there");
 let activeBriefingSections = [...todayBriefing.sections];
+let activeBriefing = todayBriefing;
 
 let step = 0;
 let answers = {};
@@ -81,10 +83,6 @@ let audioLoading = false;
 let activeStudioAudio;
 const launchParams = new URLSearchParams(window.location.search);
 let autoplayRequested = launchParams.get("autoplay") === "1";
-// Older test emails predate explicit edition IDs. Preserve those links by
-// resolving any email launch to the locked POC briefing.
-const requestedBriefingId = launchParams.get("briefing")
-  || (launchParams.get("source") === "email" ? "email-poc-001" : null);
 const studioVoiceCache = new Map();
 
 const $ = (id) => document.getElementById(id);
@@ -332,10 +330,11 @@ function completeSetup() {
 }
 
 function renderBriefing(briefing) {
+  activeBriefing = briefing;
   $("playButton").disabled = false;
   $("briefingTitle").textContent = briefing.title;
   const spokenSections = briefing.audio_sections || briefing.sections;
-  const alertCount = briefing.alert_count || Math.max(0, spokenSections.length - 1);
+  const alertCount = briefing.alert_count || spokenSections.length;
   $("recordDuration").textContent = String(alertCount).padStart(2, "0");
   $("durationDisplay").textContent = `${alertCount} ALERT${alertCount === 1 ? "" : "S"}`;
   activeBriefingSections = spokenSections.map((section) => section.replace("{{name}}", answers.name || "there"));
@@ -349,17 +348,49 @@ function renderBriefing(briefing) {
   generatedAudio = null;
   if (generatedAudioUrl) URL.revokeObjectURL(generatedAudioUrl);
   generatedAudioUrl = null;
+  $("produceButton").disabled = !ENABLE_PRODUCED_NEWSCAST;
+}
+
+async function produceNewscast() {
+  const button = $("produceButton");
+  if (button.disabled) return;
+  button.disabled = true;
+  button.querySelector("b").textContent = "Producing your newscast…";
+  try {
+    const response = await fetch("/api/newscast", {
+      method: "POST", headers: { "Content-Type": "application/json" }, cache: "no-store",
+      body: JSON.stringify({ profile: answers, briefing: activeBriefing })
+    });
+    if (!response.ok) throw new Error("NEWSCAST_UNAVAILABLE");
+    const url = URL.createObjectURL(await response.blob());
+    const audio = $("newscastAudio");
+    audio.src = url;
+    audio.classList.remove("hidden");
+    const download = $("downloadNewscast");
+    download.href = url;
+    download.download = `gojo-${new Date().toISOString().slice(0, 10)}.mp3`;
+    download.classList.remove("hidden");
+    button.classList.add("hidden");
+    await audio.play().catch(() => {});
+  } catch {
+    button.disabled = false;
+    button.querySelector("b").textContent = "Try producing again";
+    toast("The audio studio is temporarily unavailable. Your email briefing is still ready.");
+  }
 }
 
 async function curateBriefing(profile) {
   try {
-    const response = requestedBriefingId === "email-poc-001"
-      ? await fetch("/email-poc-briefing.json")
-      : await fetch("/api/briefing", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(profile)
-        });
+    const response = await fetch(`/api/briefing?fresh=${Date.now()}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        "Pragma": "no-cache"
+      },
+      cache: "no-store",
+      body: JSON.stringify({ ...profile, freshnessNonce: globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}` })
+    });
     if (!response.ok) throw new Error("BRIEFING_UNAVAILABLE");
     const briefing = await response.json();
     renderBriefing(briefing);
@@ -507,6 +538,7 @@ $("retuneButton").addEventListener("click", () => {
 });
 if (ENABLE_AUDIO_EXPERIENCE) $("previewButton").addEventListener("click", playBriefing);
 if (ENABLE_VOICE_ONBOARDING) $("listenButton").addEventListener("click", beginListening);
+$("produceButton").addEventListener("click", produceNewscast);
 $("customInput").addEventListener("input", () => {
   const q = currentQuestion();
   answers[q.key] = q.tags

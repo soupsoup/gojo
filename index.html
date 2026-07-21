@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=email-alerts-1" />
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
@@ -95,6 +95,16 @@
             <span>A preview of today’s email</span>
             <h2 id="briefingTitle">What changed across your world</h2>
           </div>
+          <section class="newscast-studio" aria-labelledby="newscastTitle">
+            <div>
+              <span>PRODUCED AUDIO EDITION</span>
+              <h3 id="newscastTitle">Your news, made to listen to.</h3>
+              <p>A host-written newscast with transitions, attribution, and an original music bed—not a readout of the email.</p>
+            </div>
+            <button id="produceButton" disabled><i>▶</i><b>Produce today’s GoJo</b></button>
+            <audio id="newscastAudio" controls class="hidden"></audio>
+            <a id="downloadNewscast" class="hidden" download>Download MP3 ↓</a>
+          </section>
           <div class="waveform hidden" id="waveform" aria-hidden="true"></div>
           <div class="player-controls hidden">
             <span id="elapsed">ALERT FEED</span>
@@ -115,6 +125,6 @@
       <span>Concise reporting. Direct sources.</span>
     </footer>
     <div class="toast" id="toast" role="status"></div>
-    <script src="app.js"></script>
+    <script src="app.js?v=produced-newscast-1"></script>
   </body>
 </html>

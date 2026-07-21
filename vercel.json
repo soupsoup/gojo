@@ -1,7 +1,7 @@
 {
   "version": 2,
   "builds": [
-    { "src": "api/[...path].js", "use": "@vercel/node", "config": { "maxDuration": 60 } },
+    { "src": "api/[...path].js", "use": "@vercel/node", "config": { "maxDuration": 300 } },
     { "src": "index.html", "use": "@vercel/static" },
     { "src": "email-preview.html", "use": "@vercel/static" },
     { "src": "email-poc-briefing.json", "use": "@vercel/static" },
@@ -15,5 +15,6 @@
     { "src": "/email-preview", "dest": "/email-preview.html" },
     { "src": "/email-poc-briefing.json", "dest": "/email-poc-briefing.json" },
     { "src": "/", "dest": "/index.html" }
-  ]
+  ],
+  "crons": [{ "path": "/api/daily-delivery", "schedule": "0 11 * * *" }]
 }
